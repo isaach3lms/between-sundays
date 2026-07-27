@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% set dark_header = true %}
+{% block title %}Services | Between Sundays{% endblock %}
+{% block description %}Service planning, website and app development, communication automation, discipleship systems, financial projections, and Google for Nonprofits setup for churches.{% endblock %}
+
+{% block content %}
+<section class="hero" style="padding-bottom: clamp(48px,6vw,72px)">
+  <div class="shell">
+    <div class="hero__inner">
+      <p class="eyebrow eyebrow--light">Services</p>
+      <h1>Operational support, one function at a time.</h1>
+      <p>Six areas of work that churches typically hire six different people to cover. We handle them as one engagement, with one point of contact.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="shell">
+    <div class="grid grid--2">
+      <article class="card">
+        <span class="card__tag">01 Planning</span>
+        <h3>Service planning and implementation</h3>
+        <p>We map how your Sunday gets built, then remove the steps that do not need a human. Volunteer scheduling, run-of-show, rehearsal timelines, and a documented workflow your team can run without you in the room.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">02 Build</span>
+        <h3>Website and app development</h3>
+        <p>A modern, mobile-first church website and a matching mobile app. Sermon library, events, giving, push notifications, and a resource hub that keeps your congregation connected during the week, not just on the weekend.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">03 Automate</span>
+        <h3>Communication automation</h3>
+        <p>Automated email and text sequences for first-time guests, new members, small group signups, and giving follow-up. Written once, sent on time, every time, without adding a task to anyone's list.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">04 Discipleship</span>
+        <h3>Discipleship systems</h3>
+        <p>Custom pathways from first visit to disciple-maker, with the resources to teach each stage and the tracking to see who is moving. Your leaders get a clear picture of spiritual growth instead of a hunch.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">05 Finance</span>
+        <h3>Financial audits and projections</h3>
+        <p>A review of where the money goes, a budget your board can defend, and a forecast that shows what next year's hire or building project actually requires. Stewardship strategy grounded in real numbers.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">06 Grants</span>
+        <h3>Google for Nonprofits setup</h3>
+        <p>We run the application, configure Google Workspace, enable the nonprofit YouTube tier, and enroll your church in Google Ad Grants. Approved churches receive up to $10,000 per month in search advertising at no cost.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ink">
+  <div class="shell split">
+    <div>
+      <p class="eyebrow eyebrow--light">The dashboard</p>
+      <h2>One view of the whole congregation.</h2>
+      <p>Every partnership includes the Between Sundays Church Dashboard. Manage your website and app, monitor discipleship pathways, organize ministry resources, and track the people your systems usually lose.</p>
+    </div>
+    <ul class="questions">
+      <li>Who is a first-time guest?</li>
+      <li>Who has completed our membership class?</li>
+      <li>Who is serving?</li>
+      <li>Who is in a small group?</li>
+      <li>Who has been baptized?</li>
+      <li>Who is being discipled?</li>
+      <li>Who is discipling others?</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="shell">
+    <div class="section__head">
+      <p class="eyebrow">How it runs</p>
+      <h2>Three phases, then partnership.</h2>
+    </div>
+    <div class="grid grid--3">
+      <article class="card">
+        <span class="card__tag">Phase one</span>
+        <h3>Assessment</h3>
+        <p>We audit your current systems, communication, and workflow. You get a written picture of where the hours are going.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">Phase two</span>
+        <h3>Build</h3>
+        <p>Website, app, automations, and dashboard configured to your church. Copy written, brand applied, staff trained.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">Phase three</span>
+        <h3>Partnership</h3>
+        <p>Hosting, updates, monitoring, and ongoing strategy. We stay on as the operational team you do not have to hire.</p>
+      </article>
+    </div>
+    <p class="mt-32"><a class="btn btn--primary" href="{{ url_for('pricing') }}">See what it costs</a></p>
+  </div>
+</section>
+{% endblock %}

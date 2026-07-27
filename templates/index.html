@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% set dark_header = true %}
+{% block title %}Between Sundays | Church operations, handled{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="shell">
+    <div class="hero__inner">
+      <p class="eyebrow eyebrow--light">Focused on ministry</p>
+      <h1>Sunday takes a few hours.<br><em>The rest of the week takes the staff you do not have.</em></h1>
+      <p>Between Sundays runs the websites, apps, communication systems, discipleship tracking, and financial reporting behind your church, so your leaders spend their time with people instead of platforms.</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="{{ url_for('contact') }}">Book a call</a>
+        <a class="btn btn--light" href="{{ url_for('pricing') }}">See pricing</a>
+      </div>
+    </div>
+
+    <div class="hero__rail">
+      <ul class="rail">
+        <li class="rail__day rail__day--sunday"><span></span>Sun</li>
+        <li class="rail__day rail__day--between"><span></span>Mon</li>
+        <li class="rail__day rail__day--between"><span></span>Tue</li>
+        <li class="rail__day rail__day--between"><span></span>Wed</li>
+        <li class="rail__day rail__day--between"><span></span>Thu</li>
+        <li class="rail__day rail__day--between"><span></span>Fri</li>
+        <li class="rail__day rail__day--between"><span></span>Sat</li>
+        <li class="rail__day rail__day--sunday"><span></span>Sun</li>
+      </ul>
+      <p class="hero__rail-note">One gathering to the next. Everything that makes Sunday work is built in the six days between.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="shell">
+    <div class="section__head">
+      <p class="eyebrow">The problem</p>
+      <h2>Most pastors are doing two jobs.</h2>
+      <p class="lede">One is ministry. The other is running a small technology company: the website nobody updates, the app that never launched, the giving platform that does not talk to the database, the guest who visited three weeks ago and was never contacted. That second job has no budget for a full-time hire, so it lands on the person who was called to preach.</p>
+    </div>
+    <div class="grid grid--3">
+      <article class="card card--flat">
+        <h3>Hours, not minutes</h3>
+        <p>Weekly service prep, announcements, graphics, and follow-up consume staff time that was budgeted for people.</p>
+      </article>
+      <article class="card card--flat">
+        <h3>Systems that do not connect</h3>
+        <p>Attendance in one place, giving in another, small groups on a spreadsheet. No single view of the congregation.</p>
+      </article>
+      <article class="card card--flat">
+        <h3>Growth without structure</h3>
+        <p>New people arrive faster than the follow-up process can absorb them, and quietly leave the same way.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="shell">
+    <div class="section__head">
+      <p class="eyebrow">What we do</p>
+      <h2>Six areas of operational support.</h2>
+      <p class="lede">Take one or take all six. Every engagement is scoped to what your church actually needs this year.</p>
+    </div>
+    <div class="grid grid--3">
+      <article class="card">
+        <span class="card__tag">Planning</span>
+        <h3>Service planning and implementation</h3>
+        <p>Streamlined weekly workflows, volunteer coordination, and a repeatable process for getting Sunday built before Saturday night.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">Build</span>
+        <h3>Website and app development</h3>
+        <p>Modern church websites and mobile apps that give members a reason to open them on a Tuesday.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">Automate</span>
+        <h3>Communication automation</h3>
+        <p>Email, text, and workflow systems that keep members informed without adding to anyone's Monday.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">Discipleship</span>
+        <h3>Discipleship systems</h3>
+        <p>Custom pathways, resources, and tracking so leaders can see spiritual growth instead of guessing at it.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">Finance</span>
+        <h3>Financial audits and projections</h3>
+        <p>Reviews, budgets, forecasts, and stewardship strategy that make the next ministry decision an informed one.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">Grants</span>
+        <h3>Google for Nonprofits setup</h3>
+        <p>Application, Workspace, YouTube, and the Ad Grant that funds up to $10,000 per month in search advertising.</p>
+      </article>
+    </div>
+    <p class="mt-32"><a class="btn btn--ghost" href="{{ url_for('services') }}">See how each one works</a></p>
+  </div>
+</section>
+
+<section class="section section--ink">
+  <div class="shell split">
+    <div>
+      <p class="eyebrow eyebrow--light">The dashboard</p>
+      <h2>Seven questions every pastor should be able to answer on demand.</h2>
+      <p>Every partnership includes the Between Sundays Church Dashboard. It is one place to manage your digital presence, monitor discipleship pathways, organize resources, and see where each person stands.</p>
+      <p class="mt-32"><a class="btn btn--primary" href="{{ url_for('contact') }}">Request a walkthrough</a></p>
+    </div>
+    <ul class="questions">
+      <li>Who is a first-time guest?</li>
+      <li>Who has completed our membership class?</li>
+      <li>Who is serving?</li>
+      <li>Who is in a small group?</li>
+      <li>Who has been baptized?</li>
+      <li>Who is being discipled?</li>
+      <li>Who is discipling others?</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="shell">
+    <div class="section__head">
+      <p class="eyebrow">Who we serve</p>
+      <h2>Built for churches without a technology staff.</h2>
+    </div>
+    <div class="grid grid--3">
+      <article class="card card--flat"><h3>Church plants</h3><p>Launch with a professional presence from week one instead of retrofitting it in year three.</p></article>
+      <article class="card card--flat"><h3>Small and mid-sized churches</h3><p>Operational support at a fraction of the cost of hiring specialists for each function.</p></article>
+      <article class="card card--flat"><h3>Growing congregations</h3><p>Systems that hold up when attendance doubles and the volunteer team does not.</p></article>
+      <article class="card card--flat"><h3>Multi-site churches</h3><p>Scalable structures that keep every campus reporting the same way.</p></article>
+      <article class="card card--flat"><h3>Ministries and nonprofits</h3><p>The same operational backbone for organizations serving their local communities.</p></article>
+      <article class="card card--flat"><h3>Established churches</h3><p>Modernize without rebuilding everything at once. We start where the pain is.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--mist">
+  <div class="shell center narrow">
+    <p class="eyebrow">Next step</p>
+    <h2>Tell us what your week actually looks like.</h2>
+    <p class="lede" style="margin: 0 auto 28px;">A short call, no pitch deck. We will walk through where your team is spending time and tell you plainly whether we can help.</p>
+    <a class="btn btn--primary" href="{{ url_for('contact') }}">Book a call</a>
+  </div>
+</section>
+{% endblock %}
