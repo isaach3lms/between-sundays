@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Case Studies | Between Sundays{% endblock %}
+{% block description %}How churches and nonprofits used Between Sundays to unify their data, define next steps, and move more people forward.{% endblock %}
+
+{% block content %}
+<section class="hero hero--short">
+  <div class="shell">
+    <div class="hero__inner">
+      <p class="eyebrow eyebrow--light">Case Studies</p>
+      <h1>The work, and what it changed.</h1>
+      <p class="hero__lede">Every engagement starts with the same question: who are you losing, and where. These are the answers, and what happened after.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     PLACEHOLDER CONTENT BELOW.
+     Replace bracketed text with real client details before launch. Do not
+     publish invented numbers. If you have one real engagement, delete the
+     other two blocks and ship a single case study.
+     ========================================================================== -->
+
+<section class="section">
+  <div class="shell">
+    <article class="study">
+      <div class="study__body">
+        <p class="eyebrow">Church &middot; [City, State]</p>
+        <h2>[Church name] cut guest follow-up from nine days to one.</h2>
+        <p class="lede">[One sentence on the situation. Example: attendance was growing but first-time guests were being contacted inconsistently, and no one could say how many returned.]</p>
+        <div class="stack-sm">
+          <p><strong>The problem.</strong> [Two sentences. Where the data lived, what broke, who was doing the manual work.]</p>
+          <p><strong>What we built.</strong> [Two sentences. Which systems were connected, which pathway was defined, what was automated.]</p>
+          <p><strong>The result.</strong> [Two sentences. Name the metric and the timeframe.]</p>
+        </div>
+      </div>
+      <div class="study__stats">
+        <div class="stat">
+          <span class="stat__num">[00%]</span>
+          <span class="stat__label">[Guest return rate]</span>
+        </div>
+        <div class="stat">
+          <span class="stat__num">[00]</span>
+          <span class="stat__label">[Hours saved per month]</span>
+        </div>
+        <div class="stat">
+          <span class="stat__num">[00%]</span>
+          <span class="stat__label">[More next steps taken]</span>
+        </div>
+        <blockquote class="quote">
+          <p>[Two sentences in the client's own words. Ask for the quote at the 90-day mark, not at launch.]</p>
+          <cite><span>[Name]</span>[Role], [Church name]</cite>
+        </blockquote>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="shell">
+    <article class="study study--reverse">
+      <div class="study__body">
+        <p class="eyebrow">Nonprofit &middot; [City, State]</p>
+        <h2>[Organization name] turned a spreadsheet into grant-ready reporting.</h2>
+        <p class="lede">[One sentence on the situation.]</p>
+        <div class="stack-sm">
+          <p><strong>The problem.</strong> [Two sentences.]</p>
+          <p><strong>What we built.</strong> [Two sentences.]</p>
+          <p><strong>The result.</strong> [Two sentences.]</p>
+        </div>
+      </div>
+      <div class="study__stats">
+        <div class="stat">
+          <span class="stat__num">[$0,000]</span>
+          <span class="stat__label">[Ad Grant spend activated]</span>
+        </div>
+        <div class="stat">
+          <span class="stat__num">[00]</span>
+          <span class="stat__label">[Volunteers retained]</span>
+        </div>
+        <div class="stat">
+          <span class="stat__num">[00%]</span>
+          <span class="stat__label">[Reporting time reduced]</span>
+        </div>
+        <blockquote class="quote">
+          <p>[Two sentences in the client's own words.]</p>
+          <cite><span>[Name]</span>[Role], [Organization name]</cite>
+        </blockquote>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section">
+  <div class="shell">
+    <div class="section__head">
+      <p class="eyebrow">More engagements</p>
+      <h2>Shorter versions.</h2>
+    </div>
+    <div class="grid grid--3">
+      <article class="card">
+        <span class="card__tag">Church plant</span>
+        <h3>[Launched in six weeks]</h3>
+        <p>[Two sentences on scope and outcome.]</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">Multi-site</span>
+        <h3>[One report across three campuses]</h3>
+        <p>[Two sentences on scope and outcome.]</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">Ministry</span>
+        <h3>[Volunteer hours, finally counted]</h3>
+        <p>[Two sentences on scope and outcome.]</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ink">
+  <div class="shell narrow center">
+    <p class="eyebrow eyebrow--light">Founding partners</p>
+    <h2>We are taking on a limited number of founding partners.</h2>
+    <p class="lede" style="color: rgba(255,255,255,0.72); margin: 0 auto 28px;">Founding partners get direct access, faster build timelines, and pricing locked for the life of the partnership. In exchange, we ask for honest feedback and permission to publish the results.</p>
+    <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Apply for a founding spot</a>
+  </div>
+</section>
+{% endblock %}

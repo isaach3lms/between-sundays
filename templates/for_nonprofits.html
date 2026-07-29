@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}For Nonprofits | Between Sundays{% endblock %}
+{% block description %}Donor and volunteer systems, participant tracking, grant-ready reporting, and Google Ad Grants setup worth up to $10,000 per month for nonprofits.{% endblock %}
+
+{% block content %}
+<section class="hero hero--short">
+  <div class="shell">
+    <div class="hero__inner">
+      <p class="eyebrow eyebrow--light">For Nonprofits</p>
+      <h1>Know every donor, volunteer, and person you serve.</h1>
+      <p class="hero__lede">The same operating system, built for mission-driven organizations. One record per person, a defined next step for each of them, and reporting your board and your funders will actually trust.</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
+        <a class="btn btn--light" href="#grants">Google Ad Grants</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="shell">
+    <div class="section__head">
+      <p class="eyebrow">The problem</p>
+      <h2>Your impact is real. Your reporting cannot prove it.</h2>
+      <p class="lede">Donor records in one platform, volunteer signups in a form, program participants in a spreadsheet that one person maintains. When a funder asks how many people you served and what happened to them, the answer takes a week to assemble and still comes with a caveat.</p>
+    </div>
+    <div class="grid grid--3">
+      <article class="card card--flat">
+        <h3>Donor attrition nobody sees</h3>
+        <p>A first-time donor who never gets a second ask is indistinguishable from one who declined. Both are just gone.</p>
+      </article>
+      <article class="card card--flat">
+        <h3>Volunteers who fade out</h3>
+        <p>People sign up, serve twice, and disappear. Without a record, no one notices until the schedule breaks.</p>
+      </article>
+      <article class="card card--flat">
+        <h3>Outcomes you cannot report</h3>
+        <p>Grant applications ask for longitudinal outcomes. Spreadsheets give you a headcount.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="shell">
+    <div class="section__head">
+      <p class="eyebrow">What we build</p>
+      <h2>Six functions, one system.</h2>
+    </div>
+    <div class="grid grid--2">
+      <article class="card">
+        <span class="card__tag">01 Donors</span>
+        <h3>Donor systems and stewardship</h3>
+        <p>Giving history, recurring donor tracking, lapsed-donor alerts, and automated acknowledgment. Every gift is receipted and every donor has a defined next touch.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">02 Volunteers</span>
+        <h3>Volunteer coordination</h3>
+        <p>Signup, scheduling, reminders, and hour tracking in one place. Hours roll straight into board and grant reporting instead of being reconstructed at year end.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">03 Programs</span>
+        <h3>Participant tracking and outcomes</h3>
+        <p>Intake through completion, with the milestones that matter to your mission recorded along the way. Longitudinal outcomes become a report, not a research project.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">04 Build</span>
+        <h3>Website and app development</h3>
+        <p>A mobile-first site built to convert: clear programs, a donation path with no friction, and volunteer signup that takes under a minute.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">05 Automate</span>
+        <h3>Communication automation</h3>
+        <p>Email and text sequences for new donors, new volunteers, event registrants, and lapsed supporters. Consistent follow-up without adding staff.</p>
+      </article>
+      <article class="card">
+        <span class="card__tag">06 Finance</span>
+        <h3>Financial audits and projections</h3>
+        <p>Budget review, revenue forecasting, and program cost analysis. Know your cost per person served before the next grant cycle, not after.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ink" id="grants">
+  <div class="shell split">
+    <div>
+      <p class="eyebrow eyebrow--light">Google Ad Grants</p>
+      <h2>Up to $10,000 per month in free search advertising.</h2>
+      <p>Most eligible nonprofits either never apply or get approved and let the account go dormant, which triggers deactivation. We run the application, configure Google Workspace and the nonprofit YouTube tier, build the first campaigns, and keep the account compliant.</p>
+      <p class="mt-32"><a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Check your eligibility</a></p>
+    </div>
+    <ul class="questions">
+      <li>501(c)(3) status verified</li>
+      <li>Google for Nonprofits application submitted</li>
+      <li>Workspace and YouTube nonprofit tier configured</li>
+      <li>Ad Grants account created</li>
+      <li>First campaigns written and launched</li>
+      <li>Compliance monitored monthly</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="shell">
+    <div class="section__head">
+      <p class="eyebrow">Pricing</p>
+      <h2>Same structure. One build, one partnership.</h2>
+      <p class="lede">Nonprofits use the same two-step pricing as churches. The build establishes the platform, the monthly partnership keeps it running and supported.</p>
+    </div>
+    <div class="grid grid--2">
+      <article class="plan">
+        <h3 class="plan__name">Launch Package</h3>
+        <p class="plan__price">$1,500 <small>one time</small></p>
+        <p class="plan__for">Establish a professional presence and a working donor and volunteer system.</p>
+        <ul class="plan__list">
+          <li>Up to 5 custom website pages</li>
+          <li>Professional copywriting</li>
+          <li>Search engine optimization</li>
+          <li>Logo design or brand refresh</li>
+          <li>Google Business Profile and Maps setup</li>
+          <li>Donation and volunteer signup paths</li>
+          <li>Team training</li>
+          <li>Access to the dashboard</li>
+        </ul>
+        <a class="btn btn--ghost btn--wide" href="{{ url_for('book_a_call') }}">Start with Launch</a>
+      </article>
+
+      <article class="plan plan--feature">
+        <h3 class="plan__name">Growth Package</h3>
+        <p class="plan__price">$2,000 <small>one time</small></p>
+        <p class="plan__for">For organizations ready to use the full grant and outreach stack available to them.</p>
+        <ul class="plan__list">
+          <li class="is-inherited">Everything in the Launch Package</li>
+          <li>Up to 7 custom website pages</li>
+          <li>Google for Nonprofits setup</li>
+          <li>Google Ad Grants enrollment assistance</li>
+          <li>First Google Ads campaign built and launched</li>
+          <li>Enhanced supporter engagement tools</li>
+          <li>Access to the dashboard</li>
+        </ul>
+        <a class="btn btn--primary btn--wide" href="{{ url_for('book_a_call') }}">Start with Growth</a>
+      </article>
+    </div>
+    <p class="lede mt-32">Monthly partnerships run $50, $100, and $250 depending on whether you need hosting and support, a custom app, or full program and outcome management. <a href="{{ url_for('for_churches') }}#pricing">See the full breakdown</a>.</p>
+  </div>
+</section>
+
+<section class="section section--mist">
+  <div class="shell narrow center">
+    <p class="eyebrow">Next step</p>
+    <h2>Bring us your hardest reporting question.</h2>
+    <p class="lede" style="margin: 0 auto 28px;">If we cannot show you how the system would answer it, we will tell you on the call and save you the proposal.</p>
+    <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
+  </div>
+</section>
+{% endblock %}

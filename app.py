@@ -26,16 +26,39 @@ SMTP_PASS = os.environ.get("SMTP_PASS", "")
 MAIL_FROM = os.environ.get("MAIL_FROM", "website@betweensundays.co")
 MAIL_TO = os.environ.get("MAIL_TO", "dennis@betweensundays.co")
 
+# Stripe customer portal login link (Billing > Customer portal > no-code link).
+# Left empty by default so the live site never ships a dead button. Set this in
+# Render > Environment and the Client Login button appears with no code change.
+CLIENT_PORTAL_URL = os.environ.get("CLIENT_PORTAL_URL", "")
+
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$")
 
 SITE = {
     "name": "Between Sundays",
-    "tagline": "Focused on ministry. Every day between Sundays.",
+    "tagline": (
+        "Helping churches and nonprofits build operating systems to know every "
+        "person and lead them to their next step."
+    ),
     "email": MAIL_TO,
+    "client_portal": CLIENT_PORTAL_URL,
     "instagram": "https://instagram.com/",
     "youtube": "https://youtube.com/",
     "linkedin": "https://linkedin.com/",
 }
+
+# Rotating hero phrases. Each pair is (what a person does, what the system tracks).
+DISCIPLESHIP_IS = [
+    ("reading your Bible.", "Bible engagement"),
+    ("serving on a team.", "Service planning"),
+    ("giving.", "Generosity"),
+    ("showing up on a Wednesday.", "Attendance"),
+    ("joining a small group.", "Groups"),
+    ("following up with a guest.", "First-time guests"),
+    ("getting baptized.", "Milestones"),
+    ("praying for someone by name.", "Care requests"),
+    ("inviting your neighbor.", "Invites"),
+    ("leading a group of your own.", "Multiplication"),
+]
 
 
 @app.context_processor
@@ -48,28 +71,28 @@ def inject_site():
 # ---------------------------------------------------------------------------
 @app.route("/")
 def home():
-    return render_template("index.html", page="home")
+    return render_template("index.html", page="home", phrases=DISCIPLESHIP_IS)
 
 
-@app.route("/services")
-def services():
-    return render_template("services.html", page="services")
+@app.route("/for-churches")
+def for_churches():
+    return render_template("for_churches.html", page="churches")
 
 
-@app.route("/pricing")
-def pricing():
-    return render_template("pricing.html", page="pricing")
+@app.route("/for-nonprofits")
+def for_nonprofits():
+    return render_template("for_nonprofits.html", page="nonprofits")
 
 
-@app.route("/about")
-def about():
-    return render_template("about.html", page="about")
+@app.route("/case-studies")
+def case_studies():
+    return render_template("case_studies.html", page="case-studies")
 
 
-@app.route("/contact", methods=["GET", "POST"])
-def contact():
+@app.route("/book-a-call", methods=["GET", "POST"])
+def book_a_call():
     if request.method == "GET":
-        return render_template("contact.html", page="contact", errors={}, form={})
+        return render_template("book_a_call.html", page="book", errors={}, form={})
 
     form = {k: (v or "").strip() for k, v in request.form.items()}
 
@@ -79,7 +102,7 @@ def contact():
 
     errors = validate(form)
     if errors:
-        return render_template("contact.html", page="contact", errors=errors, form=form), 400
+        return render_template("book_a_call.html", page="book", errors=errors, form=form), 400
 
     try:
         send_notification(form)
@@ -88,7 +111,7 @@ def contact():
         errors["form"] = (
             "The message did not send. Email %s directly and we will follow up today." % MAIL_TO
         )
-        return render_template("contact.html", page="contact", errors=errors, form=form), 500
+        return render_template("book_a_call.html", page="book", errors=errors, form=form), 500
 
     return redirect(url_for("thank_you"))
 
@@ -96,6 +119,23 @@ def contact():
 @app.route("/thank-you")
 def thank_you():
     return render_template("thank_you.html", page="thank-you")
+
+
+# Legacy paths from the first build.
+@app.route("/services")
+@app.route("/about")
+def legacy_churches():
+    return redirect(url_for("for_churches"), code=301)
+
+
+@app.route("/pricing")
+def legacy_pricing():
+    return redirect(url_for("for_churches") + "#pricing", code=301)
+
+
+@app.route("/contact")
+def legacy_contact():
+    return redirect(url_for("book_a_call"), code=301)
 
 
 @app.errorhandler(404)
@@ -118,7 +158,7 @@ def robots():
 @app.route("/sitemap.xml")
 def sitemap():
     base = request.url_root.rstrip("/")
-    paths = ["/", "/services", "/pricing", "/about", "/contact"]
+    paths = ["/", "/for-churches", "/for-nonprofits", "/case-studies", "/book-a-call"]
     urls = "".join("<url><loc>%s%s</loc></url>" % (base, p) for p in paths)
     body = (
         '<?xml version="1.0" encoding="UTF-8"?>'
@@ -131,39 +171,44 @@ def sitemap():
 # Helpers
 # ---------------------------------------------------------------------------
 def validate(form):
+    """Required: name, email, organization. Everything else is optional so a
+    qualified lead is never lost to a form error."""
     errors = {}
     if len(form.get("name", "")) < 2:
         errors["name"] = "Enter your name."
     if not EMAIL_RE.match(form.get("email", "")):
         errors["email"] = "Enter an email address we can reply to."
-    if len(form.get("church", "")) < 2:
-        errors["church"] = "Enter your church or ministry name."
-    if len(form.get("message", "")) < 10:
-        errors["message"] = "Tell us a little about what your church needs."
+    if len(form.get("org", "")) < 2:
+        errors["org"] = "Enter your church or organization name."
     return errors
 
 
 def send_notification(form):
+    org_type = form.get("org_type") or "not specified"
     msg = EmailMessage()
-    msg["Subject"] = "New inquiry: %s (%s)" % (form.get("church", ""), form.get("name", ""))
+    msg["Subject"] = "New inquiry: %s (%s)" % (form.get("org", ""), form.get("name", ""))
     msg["From"] = MAIL_FROM
     msg["To"] = MAIL_TO
     msg["Reply-To"] = form.get("email", "")
     msg.set_content(
         "Name: {name}\n"
-        "Church: {church}\n"
+        "Organization: {org}\n"
+        "Type: {org_type}\n"
         "Email: {email}\n"
         "Phone: {phone}\n"
-        "Weekly attendance: {size}\n"
-        "Interested in: {interest}\n\n"
+        "Weekly attendance or size: {size}\n"
+        "Interested in: {interest}\n"
+        "Source: {source}\n\n"
         "Message:\n{message}\n".format(
             name=form.get("name", ""),
-            church=form.get("church", ""),
+            org=form.get("org", ""),
+            org_type=org_type,
             email=form.get("email", ""),
-            phone=form.get("phone", "not provided"),
-            size=form.get("size", "not provided"),
-            interest=form.get("interest", "not specified"),
-            message=form.get("message", ""),
+            phone=form.get("phone") or "not provided",
+            size=form.get("size") or "not provided",
+            interest=form.get("interest") or "not specified",
+            source=form.get("source") or "site",
+            message=form.get("message") or "(none)",
         )
     )
 

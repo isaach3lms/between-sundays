@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% set dark_header = true %}
 {% block title %}Message sent | Between Sundays{% endblock %}
 
 {% block content %}
@@ -8,10 +7,10 @@
     <div class="hero__inner">
       <p class="eyebrow eyebrow--light">Message sent</p>
       <h1>Thank you. We have it.</h1>
-      <p>We reply within one business day with a few times to talk. If it is urgent, email <a href="mailto:{{ site.email }}" style="color:#8fb0ff">{{ site.email }}</a> directly.</p>
+      <p class="hero__lede">We reply within one business day with a few times to talk. If it is urgent, email <a href="mailto:{{ site.email }}" style="color:#8fb0ff">{{ site.email }}</a> directly.</p>
       <div class="hero__actions">
         <a class="btn btn--light" href="{{ url_for('home') }}">Back to home</a>
-        <a class="btn btn--light" href="{{ url_for('services') }}">See what we do</a>
+        <a class="btn btn--light" href="{{ url_for('case_studies') }}">See case studies</a>
       </div>
     </div>
   </div>

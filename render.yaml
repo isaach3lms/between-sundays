@@ -24,3 +24,5 @@ services:
         sync: false
       - key: MAIL_TO
         sync: false
+      - key: CLIENT_PORTAL_URL
+        sync: false
