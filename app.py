@@ -23,8 +23,11 @@ SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.resend.com")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USER = os.environ.get("SMTP_USER", "resend")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
-MAIL_FROM = os.environ.get("MAIL_FROM", "website@betweensundays.co")
-MAIL_TO = os.environ.get("MAIL_TO", "dennis@betweensundays.co")
+MAIL_FROM = os.environ.get("MAIL_FROM", "website@betweensundaysconsulting.com")
+# Where form submissions are delivered.
+MAIL_TO = os.environ.get("MAIL_TO", "isaac@betweensundaysconsulting.com")
+# The address shown publicly on the site. Can differ from MAIL_TO.
+CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "isaac@betweensundaysconsulting.com")
 
 # Stripe customer portal login link (Billing > Customer portal > no-code link).
 # Left empty by default so the live site never ships a dead button. Set this in
@@ -39,11 +42,9 @@ SITE = {
         "Helping churches and nonprofits build operating systems to know every "
         "person and lead them to their next step."
     ),
-    "email": MAIL_TO,
+    "email": CONTACT_EMAIL,
     "client_portal": CLIENT_PORTAL_URL,
-    "instagram": "https://instagram.com/",
-    "youtube": "https://youtube.com/",
-    "linkedin": "https://linkedin.com/",
+    "linkedin": "https://www.linkedin.com/company/between-sundays-consulting/",
 }
 
 # Rotating hero phrases. Each pair is (what a person does, what the system tracks).
@@ -109,7 +110,7 @@ def book_a_call():
     except Exception as exc:  # noqa: BLE001
         app.logger.error("Contact send failed: %s", exc)
         errors["form"] = (
-            "The message did not send. Email %s directly and we will follow up today." % MAIL_TO
+            "The message did not send. Email %s directly and we will follow up today." % CONTACT_EMAIL
         )
         return render_template("book_a_call.html", page="book", errors=errors, form=form), 500
 
@@ -158,7 +159,7 @@ def robots():
 @app.route("/sitemap.xml")
 def sitemap():
     base = request.url_root.rstrip("/")
-    paths = ["/", "/for-churches", "/for-nonprofits", "/case-studies", "/book-a-call"]
+    paths = ["/", "/for-churches", "/for-nonprofits", "/book-a-call"]
     urls = "".join("<url><loc>%s%s</loc></url>" % (base, p) for p in paths)
     body = (
         '<?xml version="1.0" encoding="UTF-8"?>'

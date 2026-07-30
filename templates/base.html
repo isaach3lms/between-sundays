@@ -8,6 +8,7 @@
   <meta property="og:title" content="{{ self.title() }}">
   <meta property="og:description" content="{{ self.description() }}">
   <meta property="og:type" content="website">
+  {% block robots %}{% endblock %}
   <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +21,7 @@
 <header class="masthead">
   <div class="shell masthead__inner">
     <a class="brand" href="{{ url_for('home') }}" aria-label="Between Sundays, home">
-      <img src="{{ url_for('static', filename='img/logo-white.png') }}" alt="Between Sundays" width="563" height="75">
+      <img src="{{ url_for('static', filename='img/logo-white.png') }}" alt="Between Sundays" width="384" height="167">
     </a>
     <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
     <nav class="nav" id="nav">
@@ -45,7 +46,7 @@
   <div class="shell">
     <div class="footer__top">
       <div class="footer__brand">
-        <img class="footer__logo" src="{{ url_for('static', filename='img/logo-white.png') }}" alt="Between Sundays" width="563" height="75">
+        <img class="footer__logo" src="{{ url_for('static', filename='img/logo-white.png') }}" alt="Between Sundays" width="384" height="167">
         <p>{{ site.tagline }}</p>
       </div>
       <div>
@@ -54,7 +55,6 @@
           <li><a href="{{ url_for('home') }}">Home</a></li>
           <li><a href="{{ url_for('for_churches') }}">For Churches</a></li>
           <li><a href="{{ url_for('for_nonprofits') }}">For Nonprofits</a></li>
-          <li><a href="{{ url_for('case_studies') }}">Case Studies</a></li>
           <li><a href="{{ url_for('book_a_call') }}">Book a call</a></li>
           {% if site.client_portal %}<li><a href="{{ site.client_portal }}" target="_blank" rel="noopener">Client login</a></li>{% endif %}
         </ul>
@@ -63,9 +63,7 @@
         <h4>Connect</h4>
         <ul>
           <li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>
-          <li><a href="{{ site.instagram }}" rel="noopener">Instagram</a></li>
-          <li><a href="{{ site.youtube }}" rel="noopener">YouTube</a></li>
-          <li><a href="{{ site.linkedin }}" rel="noopener">LinkedIn</a></li>
+          <li><a href="{{ site.linkedin }}" target="_blank" rel="noopener">LinkedIn</a></li>
         </ul>
       </div>
     </div>

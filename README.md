@@ -18,7 +18,7 @@ Marketing site for Between Sundays. Flask + Jinja2, no database, deployed on Ren
 - `/` Home
 - `/for-churches` For Churches (services, dashboard, phases, pricing at `#pricing`)
 - `/for-nonprofits` For Nonprofits
-- `/case-studies` Case Studies (linked from the footer, not the main nav)
+- `/case-studies` Case Studies (live but unlinked; `noindex` while it holds placeholder copy)
 - `/book-a-call` Book a Call (GET and POST)
 - `/thank-you` Confirmation
 - `/robots.txt`, `/sitemap.xml`, `/healthz`
@@ -46,17 +46,20 @@ If the variable is unset or empty, the button does not render anywhere on the si
 
 ## Logo files
 
-Generated from the supplied wordmark, cropped to the glyphs with two pixels of padding.
+The site logo is the stacked wordmark, two lines, cropped to the glyphs with two pixels of padding. Source artwork is 384 x 167, displayed at 40px tall in the header and 56px in the footer, which leaves more than 2x pixel density on retina screens.
 
-- `static/img/logo-white.png` used in the header and footer
+- `static/img/logo-white.png` header and footer
 - `static/img/logo-ink.png` `#0B1026` version for light backgrounds
 - `static/img/logo-blue.png` `#2563FF` version
+- `static/img/logo-horizontal-white.png` the earlier single-line wordmark, kept for email signatures, social headers, and anywhere a wide format fits better than a stacked one
 
-The header is dark on every page, which is what lets the white wordmark run sitewide without a swap.
+The header is dark on every page, which is what lets the white wordmark run sitewide without a swap. The favicon stays as the `bs` monogram in `static/img/favicon.svg`, because a two-line wordmark is unreadable at 16 pixels.
 
 ## Case studies
 
-`templates/case_studies.html` ships with bracketed placeholder text and a comment block marking it. Replace every bracketed value with real client details before launch, or delete the blocks you cannot fill. Do not publish invented numbers.
+`templates/case_studies.html` ships with bracketed placeholder text and a comment block marking it. The page is reachable by direct URL but is linked from nowhere, excluded from `sitemap.xml`, and carries `<meta name="robots" content="noindex, follow">`.
+
+When real client content is ready: replace the bracketed values, remove the `robots` block from the template, add `/case-studies` back to the `paths` list in the `sitemap()` route, and restore the footer link in `base.html`.
 
 ## Run locally
 
@@ -79,7 +82,8 @@ With `SMTP_PASS` blank, the form validates and redirects normally and writes the
 | `SMTP_USER` | `resend` |
 | `SMTP_PASS` | Resend API key (`re_...`) |
 | `MAIL_FROM` | Sender on a verified domain |
-| `MAIL_TO` | Where inquiries land |
+| `MAIL_TO` | Where form submissions are delivered. Defaults to isaac@betweensundaysconsulting.com |
+| `CONTACT_EMAIL` | The address displayed publicly in the footer and on the Book a Call page. Can differ from `MAIL_TO` |
 | `CLIENT_PORTAL_URL` | Stripe customer portal login link. Leave unset to hide the Client Login button. |
 
 ## Form behavior

@@ -165,8 +165,9 @@ img {
 }
 
 .brand img {
-  height: 22px;
+  height: 40px;
   width: auto;
+  display: block;
 }
 
 .nav {
@@ -757,9 +758,9 @@ img {
 }
 
 .footer__logo {
-  height: 22px;
+  height: 56px;
   width: auto;
-  margin-bottom: 4px;
+  margin-bottom: 14px;
 }
 
 .footer__brand p {
@@ -1034,7 +1035,7 @@ img {
     padding: 24px 20px;
   }
   .brand img {
-    height: 19px;
+    height: 34px;
   }
   .footer__top {
     grid-template-columns: 1fr;
