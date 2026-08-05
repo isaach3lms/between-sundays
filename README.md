@@ -10,7 +10,7 @@ Marketing site for Between Sundays. Flask + Jinja2, no database, deployed on Ren
 | Server | gunicorn (2 workers, 4 threads) |
 | Templates | Jinja2 |
 | Assets | Static CSS and vanilla JS, no build step |
-| Email | SMTP relay, Resend recommended |
+| Email | Resend over SMTP (lead alerts), OneSignal (optional, lead-facing) |
 | Host | Render, auto-deploy from Git |
 
 ## Pages
@@ -37,6 +37,14 @@ DISCIPLESHIP_IS = [
 ```
 
 First value is the phrase after "Discipleship is". Second is the field shown in the pill below it. Add or remove entries freely; the rotator measures the tallest phrase on load and reserves that height so the hero never shifts. Rotation is disabled automatically for visitors with reduced motion enabled, and the full list is exposed to screen readers as static text.
+
+## View demo
+
+Every `Book a call` button is paired with a `View demo` button in the lighter brand tone (`--mist` fill, `--deep` text, subtle border so it stays visible on `section--mist` where the fill matches the background). Demo links open in a new tab so the visitor keeps the marketing page.
+
+The URL is read from `DEMO_URL` and every button is wrapped in `{% if site.demo_url %}`. Blank the variable and all of them disappear at once, which is the switch to use if the subdomain goes down or is not ready.
+
+Pricing card buttons (`Start with Launch`, `Choose Connect`, and so on) are deliberately left alone. They are selection actions inside a comparison, not calls to action, and a second button on each of eight cards would bury the choice.
 
 ## Client login
 
@@ -80,11 +88,40 @@ With `SMTP_PASS` blank, the form validates and redirects normally and writes the
 | `SMTP_HOST` | `smtp.resend.com` |
 | `SMTP_PORT` | `587` |
 | `SMTP_USER` | `resend` |
-| `SMTP_PASS` | Resend API key (`re_...`) |
-| `MAIL_FROM` | Sender on a verified domain |
-| `MAIL_TO` | Where form submissions are delivered. Defaults to isaac@betweensundaysconsulting.com |
-| `CONTACT_EMAIL` | The address displayed publicly in the footer and on the Book a Call page. Can differ from `MAIL_TO` |
+| `SMTP_PASS` | Resend API key (`re_...`). A send-only key is the correct scope |
+| `MAIL_FROM` | Sender on a domain verified in Resend |
+| `MAIL_TO` | Comma separated. Where lead alerts are delivered |
+| `CONTACT_EMAIL` | The address displayed publicly in the footer and on the Book a Call page |
 | `CLIENT_PORTAL_URL` | Stripe customer portal login link. Leave unset to hide the Client Login button. |
+| `DEMO_URL` | Product demo link. Defaults to demo.betweensundaysconsulting.com. Blank it to hide every View demo button. |
+| `ONESIGNAL_APP_ID` | OneSignal App ID, UUID v4. Leave unset to disable the integration. |
+| `ONESIGNAL_API_KEY` | OneSignal App API key. Sent as `Authorization: Key <value>` |
+| `ONESIGNAL_TEMPLATE_ID` | Optional. Template UUID for the confirmation email. Falls back to inline HTML. |
+| `ONESIGNAL_FROM_NAME` | Sender name override. Defaults to Between Sundays. |
+| `ONESIGNAL_REPLY_TO` | Reply-to on the confirmation email. |
+
+## Email architecture
+
+Two providers, split by what happens if they fail.
+
+| Message | Provider | Timing | On failure |
+| --- | --- | --- | --- |
+| Lead alert to the team | Resend (SMTP) | Synchronous | Visitor sees the fallback error with the direct address, and the lead payload is logged under `LEAD NOT DELIVERED` |
+| Contact record and confirmation to the lead | OneSignal | Background daemon thread | Logged and ignored; the lead is already captured |
+
+The lead alert is the one message that must arrive, so it runs on the proven transactional path and its result decides what the visitor sees. OneSignal is additive: it records the contact with tags for segmentation and sends the confirmation. **With `ONESIGNAL_APP_ID` or `ONESIGNAL_API_KEY` unset, the module is a silent no-op and the site runs Resend-only.** Nothing about OneSignal can delay or break a submission.
+
+**Consent.** The form carries an unchecked opt-in box. Everyone who submits is recorded in OneSignal so you have the contact, but only those who ticked the box are tagged `marketing_opt_in=true`. Build every marketing segment on that tag. The confirmation sets `include_unsubscribed: true` because it is a direct reply to an action the person just took; sequences built in the dashboard must not set that flag.
+
+**Tags written per lead:** `lead_source`, `lead_date`, `marketing_opt_in`, `status`, `name`, `organization`, `org_type`, `org_size`, `interest`, `phone`.
+
+## Resend setup
+
+1. Add `betweensundaysconsulting.com` in Resend under Domains.
+2. Add the DNS records Resend provides: SPF, DKIM, and the return-path CNAME.
+3. Wait for verification. `MAIL_FROM` must be on the verified domain or every send is rejected.
+4. Create a **sending-only** API key rather than a full-access one. The site only ever sends.
+5. Submit one test lead and confirm delivery before pointing traffic at the form.
 
 ## Form behavior
 
@@ -94,7 +131,7 @@ Required: name, email, organization. Everything else is optional, so a qualified
 
 1. Push to GitHub.
 2. Render, New, Blueprint, point at the repo. `render.yaml` defines the service.
-3. Set `SMTP_PASS`, `MAIL_FROM`, `MAIL_TO`. `SECRET_KEY` generates automatically.
+3. Set `SMTP_PASS`, `MAIL_FROM`, and `MAIL_TO`. `SECRET_KEY` generates automatically.
 4. Deploy, test the live URL on a phone.
 5. Add the custom domain, then cut DNS.
 

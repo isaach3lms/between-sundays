@@ -11,6 +11,7 @@
       <p class="hero__lede">The same operating system, built for mission-driven organizations. One record per person, a defined next step for each of them, and reporting your board and your funders will actually trust.</p>
       <div class="hero__actions">
         <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
+        {% if site.demo_url %}<a class="btn btn--accent" href="{{ site.demo_url }}" target="_blank" rel="noopener">View demo</a>{% endif %}
         <a class="btn btn--light" href="#grants">Google Ad Grants</a>
       </div>
     </div>
@@ -151,7 +152,10 @@
     <p class="eyebrow">Next step</p>
     <h2>Bring us your hardest reporting question.</h2>
     <p class="lede" style="margin: 0 auto 28px;">If we cannot show you how the system would answer it, we will tell you on the call and save you the proposal.</p>
-    <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
+    <div class="cta-pair">
+      <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
+      {% if site.demo_url %}<a class="btn btn--accent" href="{{ site.demo_url }}" target="_blank" rel="noopener">View demo</a>{% endif %}
+    </div>
   </div>
 </section>
 {% endblock %}

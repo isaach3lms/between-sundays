@@ -11,6 +11,7 @@
       <div class="hero__actions">
         <a class="btn btn--primary" href="{{ url_for('home') }}">Back to home</a>
         <a class="btn btn--light" href="{{ url_for('book_a_call') }}">Book a call</a>
+        {% if site.demo_url %}<a class="btn btn--accent" href="{{ site.demo_url }}" target="_blank" rel="noopener">View demo</a>{% endif %}
       </div>
     </div>
   </div>

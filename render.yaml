@@ -24,5 +24,19 @@ services:
         sync: false
       - key: MAIL_TO
         sync: false
+      - key: CONTACT_EMAIL
+        sync: false
       - key: CLIENT_PORTAL_URL
+        sync: false
+      - key: DEMO_URL
+        value: https://demo.betweensundaysconsulting.com
+      - key: ONESIGNAL_APP_ID
+        sync: false
+      - key: ONESIGNAL_API_KEY
+        sync: false
+      - key: ONESIGNAL_TEMPLATE_ID
+        sync: false
+      - key: ONESIGNAL_FROM_NAME
+        value: Between Sundays
+      - key: ONESIGNAL_REPLY_TO
         sync: false

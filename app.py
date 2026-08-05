@@ -1,8 +1,10 @@
 """Between Sundays marketing site.
 
 Flask + Jinja2, no database. Contact form posts server side, validates,
-and relays through SMTP (Resend recommended). Deployed on Render with
-gunicorn via Procfile / render.yaml.
+and relays the lead alert through Resend over SMTP. OneSignal, if configured,
+additionally records the lead as a contact and sends them a confirmation.
+Resend owns the message that must not be lost; OneSignal is optional and
+cannot break the form.
 """
 
 import os
@@ -13,25 +15,37 @@ from email.message import EmailMessage
 
 from flask import Flask, redirect, render_template, request, url_for
 
+import onesignal_client
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-change-me")
 
 # ---------------------------------------------------------------------------
-# Configuration (set these in Render > Environment)
+# Configuration (set these as environment variables on your host)
 # ---------------------------------------------------------------------------
+# Resend SMTP relay. SMTP_PASS is the Resend API key and is never committed.
 SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.resend.com")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USER = os.environ.get("SMTP_USER", "resend")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
+
+# Must be on a domain verified in Resend.
 MAIL_FROM = os.environ.get("MAIL_FROM", "website@betweensundaysconsulting.com")
-# Where form submissions are delivered.
-MAIL_TO = os.environ.get("MAIL_TO", "isaac@betweensundaysconsulting.com")
-# The address shown publicly on the site. Can differ from MAIL_TO.
+# Where lead alerts are delivered. Comma separated for multiple recipients.
+MAIL_TO = [
+    a.strip()
+    for a in os.environ.get("MAIL_TO", "isaac@betweensundaysconsulting.com").split(",")
+    if a.strip()
+]
+
+# The address displayed publicly in the footer and on the Book a Call page.
 CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "isaac@betweensundaysconsulting.com")
 
+# Live product demo. Blank this env var to hide every View demo button.
+DEMO_URL = os.environ.get("DEMO_URL", "https://demo.betweensundaysconsulting.com")
+
 # Stripe customer portal login link (Billing > Customer portal > no-code link).
-# Left empty by default so the live site never ships a dead button. Set this in
-# Render > Environment and the Client Login button appears with no code change.
+# Left empty by default so the live site never ships a dead button.
 CLIENT_PORTAL_URL = os.environ.get("CLIENT_PORTAL_URL", "")
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$")
@@ -44,6 +58,7 @@ SITE = {
     ),
     "email": CONTACT_EMAIL,
     "client_portal": CLIENT_PORTAL_URL,
+    "demo_url": DEMO_URL,
     "linkedin": "https://www.linkedin.com/company/between-sundays-consulting/",
 }
 
@@ -105,14 +120,25 @@ def book_a_call():
     if errors:
         return render_template("book_a_call.html", page="book", errors=errors, form=form), 400
 
+    opt_in = bool(request.form.get("opt_in"))
+
+    # Synchronous: the lead alert is the message that must not be lost, so its
+    # result decides what the visitor sees.
     try:
-        send_notification(form)
+        send_notification(form, opt_in)
     except Exception as exc:  # noqa: BLE001
-        app.logger.error("Contact send failed: %s", exc)
+        app.logger.error("Lead alert failed: %s", exc)
+        app.logger.error("LEAD NOT DELIVERED, recover from this record: %s", form)
         errors["form"] = (
-            "The message did not send. Email %s directly and we will follow up today." % CONTACT_EMAIL
+            "The message did not send. Email %s directly and we will follow up today."
+            % CONTACT_EMAIL
         )
         return render_template("book_a_call.html", page="book", errors=errors, form=form), 500
+
+    # Lead is safely delivered by this point. OneSignal records the contact and
+    # sends the confirmation on a background thread. Optional, and a failure
+    # here can never block or bother the visitor.
+    onesignal_client.sync_lead(form, opt_in)
 
     return redirect(url_for("thank_you"))
 
@@ -184,12 +210,13 @@ def validate(form):
     return errors
 
 
-def send_notification(form):
-    org_type = form.get("org_type") or "not specified"
+def send_notification(form, opt_in):
+    """Relay the lead to the team through Resend. Raises on failure so the
+    caller can show the visitor a fallback address."""
     msg = EmailMessage()
-    msg["Subject"] = "New inquiry: %s (%s)" % (form.get("org", ""), form.get("name", ""))
+    msg["Subject"] = "New lead: %s (%s)" % (form.get("org", ""), form.get("name", ""))
     msg["From"] = MAIL_FROM
-    msg["To"] = MAIL_TO
+    msg["To"] = ", ".join(MAIL_TO)
     msg["Reply-To"] = form.get("email", "")
     msg.set_content(
         "Name: {name}\n"
@@ -199,15 +226,17 @@ def send_notification(form):
         "Phone: {phone}\n"
         "Weekly attendance or size: {size}\n"
         "Interested in: {interest}\n"
+        "Marketing opt in: {opt_in}\n"
         "Source: {source}\n\n"
         "Message:\n{message}\n".format(
             name=form.get("name", ""),
             org=form.get("org", ""),
-            org_type=org_type,
+            org_type=form.get("org_type") or "not specified",
             email=form.get("email", ""),
             phone=form.get("phone") or "not provided",
             size=form.get("size") or "not provided",
             interest=form.get("interest") or "not specified",
+            opt_in="Yes" if opt_in else "No",
             source=form.get("source") or "site",
             message=form.get("message") or "(none)",
         )

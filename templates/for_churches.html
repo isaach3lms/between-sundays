@@ -11,6 +11,7 @@
       <p class="hero__lede">Six functions most churches hire six different people to cover. We deliver them as one partnership, with one point of contact, for less than the cost of one part-time hire.</p>
       <div class="hero__actions">
         <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
+        {% if site.demo_url %}<a class="btn btn--accent" href="{{ site.demo_url }}" target="_blank" rel="noopener">View demo</a>{% endif %}
         <a class="btn btn--light" href="#pricing">See pricing</a>
       </div>
     </div>
@@ -211,7 +212,10 @@
   <div class="shell center">
     <p class="eyebrow eyebrow--light">What every partnership includes</p>
     <p class="equation"><strong>One-time investment</strong> plus <strong>monthly ministry partnership</strong> equals a system that knows every person and moves them to their next step.</p>
-    <p class="mt-32"><a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a></p>
+        <div class="cta-pair">
+      <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
+      {% if site.demo_url %}<a class="btn btn--accent" href="{{ site.demo_url }}" target="_blank" rel="noopener">View demo</a>{% endif %}
+    </div>
   </div>
 </section>
 

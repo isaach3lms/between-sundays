@@ -199,8 +199,13 @@ img {
   gap: 10px;
 }
 
-.nav a.btn--primary {
-  padding: 12px 22px;
+.nav a.btn--primary,
+.nav a.btn--accent {
+  padding: 12px 20px;
+}
+
+.nav a.btn--accent {
+  color: var(--deep);
 }
 
 .nav__toggle {
@@ -251,6 +256,31 @@ img {
 .btn--ghost:hover {
   border-color: var(--blue);
   color: var(--blue);
+}
+
+/* Secondary CTA in the lighter brand tone. The border keeps it visible on
+   section--mist, where the fill matches the background. */
+.btn--accent {
+  background: var(--mist);
+  color: var(--deep);
+  border-color: #bfd3ff;
+}
+.btn--accent:hover {
+  background: #d4e2ff;
+  border-color: #9dbcff;
+  color: var(--deep);
+}
+
+/* Pairs a primary CTA with the demo button outside hero sections. */
+.cta-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 32px 0 0;
+}
+
+.center .cta-pair {
+  justify-content: center;
 }
 
 .btn--outline {
@@ -693,6 +723,26 @@ img {
   color: #c02626;
   font-size: 0.86rem;
   margin: 6px 0 0;
+}
+
+.field--check label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--ink-60);
+  margin: 0;
+  cursor: pointer;
+}
+
+.field--check input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  margin: 2px 0 0;
+  accent-color: var(--blue);
 }
 
 .field--hp {

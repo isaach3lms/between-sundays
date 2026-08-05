@@ -32,6 +32,7 @@
         {% if site.client_portal %}
         <a class="btn btn--outline" href="{{ site.client_portal }}" target="_blank" rel="noopener">Client login</a>
         {% endif %}
+        {% if site.demo_url %}<a class="btn btn--accent" href="{{ site.demo_url }}" target="_blank" rel="noopener">View demo</a>{% endif %}
         <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
       </span>
     </nav>
