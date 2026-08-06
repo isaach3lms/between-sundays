@@ -1,10 +1,10 @@
 """Between Sundays marketing site.
 
 Flask + Jinja2, no database. Contact form posts server side, validates,
-and relays the lead alert through Resend over SMTP. OneSignal, if configured,
-additionally records the lead as a contact and sends them a confirmation.
-Resend owns the message that must not be lost; OneSignal is optional and
-cannot break the form.
+and delivers the lead alert through OneSignal. Resend over SMTP is kept as an
+automatic fallback: if OneSignal fails and SMTP credentials are present, the
+alert is retried over SMTP before the visitor is shown an error. With SMTP
+unset, the site is OneSignal-only.
 """
 
 import os
@@ -23,7 +23,8 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-change-me")
 # ---------------------------------------------------------------------------
 # Configuration (set these as environment variables on your host)
 # ---------------------------------------------------------------------------
-# Resend SMTP relay. SMTP_PASS is the Resend API key and is never committed.
+# Resend SMTP relay, used only as a fallback when OneSignal fails.
+# SMTP_PASS is the Resend API key and is never committed.
 SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.resend.com")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USER = os.environ.get("SMTP_USER", "resend")
@@ -31,7 +32,7 @@ SMTP_PASS = os.environ.get("SMTP_PASS", "")
 
 # Must be on a domain verified in Resend.
 MAIL_FROM = os.environ.get("MAIL_FROM", "website@betweensundaysconsulting.com")
-# Where lead alerts are delivered. Comma separated for multiple recipients.
+# Fallback recipients. OneSignal uses LEAD_NOTIFY_TO; keep the two in sync.
 MAIL_TO = [
     a.strip()
     for a in os.environ.get("MAIL_TO", "isaac@betweensundaysconsulting.com").split(",")
@@ -123,11 +124,19 @@ def book_a_call():
     opt_in = bool(request.form.get("opt_in"))
 
     # Synchronous: the lead alert is the message that must not be lost, so its
-    # result decides what the visitor sees.
-    try:
-        send_notification(form, opt_in)
-    except Exception as exc:  # noqa: BLE001
-        app.logger.error("Lead alert failed: %s", exc)
+    # result decides what the visitor sees. OneSignal first, SMTP as backup.
+    delivered = onesignal_client.deliver_lead(form, opt_in)
+
+    if not delivered and SMTP_PASS:
+        app.logger.warning("OneSignal alert failed, falling back to SMTP.")
+        try:
+            send_notification(form, opt_in)
+            delivered = True
+        except Exception as exc:  # noqa: BLE001
+            app.logger.error("SMTP fallback also failed: %s", exc)
+
+    if not delivered:
+        # Never lose a lead silently. The log is the recovery path.
         app.logger.error("LEAD NOT DELIVERED, recover from this record: %s", form)
         errors["form"] = (
             "The message did not send. Email %s directly and we will follow up today."
@@ -135,10 +144,9 @@ def book_a_call():
         )
         return render_template("book_a_call.html", page="book", errors=errors, form=form), 500
 
-    # Lead is safely delivered by this point. OneSignal records the contact and
-    # sends the confirmation on a background thread. Optional, and a failure
-    # here can never block or bother the visitor.
-    onesignal_client.sync_lead(form, opt_in)
+    # Lead is captured. Confirmation to the lead runs on a background thread and
+    # can never block or bother the visitor.
+    onesignal_client.send_confirmation_only(form)
 
     return redirect(url_for("thank_you"))
 

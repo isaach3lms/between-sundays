@@ -40,3 +40,5 @@ services:
         value: Between Sundays
       - key: ONESIGNAL_REPLY_TO
         sync: false
+      - key: LEAD_NOTIFY_TO
+        sync: false

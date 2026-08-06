@@ -1,23 +1,22 @@
-"""OneSignal integration. Optional layer on top of Resend.
+"""OneSignal integration. Primary delivery path for the Book a Call form.
 
-Resend delivers the internal lead alert, which is the message that must not be
-lost. OneSignal handles everything facing the lead:
+Three things happen on submission:
 
-1. Upserts the lead as a user with tags, so they can be segmented and enrolled
-   in email sequences from the dashboard.
-2. Sends them a confirmation email.
+1. The lead is upserted as a OneSignal user with tags, so they can be
+   segmented and enrolled in sequences from the dashboard.
+2. An alert with the full lead details is sent to the team. This is the
+   message that must not be lost, so deliver_lead() runs synchronously and
+   returns a boolean the caller uses to decide what the visitor sees.
+3. A confirmation is sent to the lead on a background thread. Optional; the
+   lead is already captured by then.
 
-Design rules this module follows:
+Resend stays in app.py as an automatic fallback. If OneSignal fails and SMTP
+credentials are present, the alert is retried over SMTP before the visitor is
+shown an error. With SMTP unset, the site is OneSignal-only.
 
-- It never raises into the request path. All work happens on a daemon thread
-  and every error is swallowed and logged. If OneSignal is down, slow, or
-  misconfigured, the form still succeeds and the lead still reaches the inbox
-  through Resend.
-- It is a no-op when ONESIGNAL_APP_ID or ONESIGNAL_API_KEY are unset, so the
-  site runs Resend-only until you choose to turn it on.
-- Marketing consent is stored as a tag, not assumed. Everyone who submits is
-  recorded so you have the contact; only those who ticked the box are tagged
-  marketing_opt_in=true. Build every sequence segment on that tag.
+Marketing consent is stored as a tag, not assumed. Everyone who submits is
+recorded so you have the contact; only those who ticked the box are tagged
+marketing_opt_in=true. Build every sequence segment on that tag.
 
 API reference: https://documentation.onesignal.com/reference/create-user
 """
@@ -37,6 +36,16 @@ TIMEOUT = 10  # seconds per call
 
 APP_ID = os.environ.get("ONESIGNAL_APP_ID", "")
 API_KEY = os.environ.get("ONESIGNAL_API_KEY", "")
+
+# Where lead alerts are delivered. Comma separated for multiple recipients.
+NOTIFY_TO = [
+    a.strip().lower()
+    for a in os.environ.get("LEAD_NOTIFY_TO", "isaac@betweensundaysconsulting.com").split(",")
+    if a.strip()
+]
+
+# Internal recipients only need to be registered once per process.
+_known_internal = set()
 
 # Optional. Design the confirmation email in the OneSignal dashboard and paste
 # the template UUID here. If unset, the inline HTML below is used.
@@ -105,6 +114,7 @@ def _lead_tags(form, opt_in):
         "lead_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "marketing_opt_in": "true" if opt_in else "false",
         "status": "new_lead",
+        "internal_team": "false",
     }
     optional = {
         "name": form.get("name"),
@@ -118,6 +128,110 @@ def _lead_tags(form, opt_in):
         if value:
             tags[key] = str(value)[:255]
     return tags
+
+
+def _ensure_internal_recipients():
+    """Register team addresses as tagged users so they can be targeted by alias
+    and excluded from every marketing segment."""
+    for address in NOTIFY_TO:
+        if address in _known_internal:
+            continue
+        if _upsert_user(address, {"internal_team": "true", "status": "team"}):
+            _known_internal.add(address)
+
+
+def _esc(value):
+    if not value:
+        return "not provided"
+    return (
+        str(value)
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
+
+
+def _alert_html(form, opt_in):
+    rows = [
+        ("Name", form.get("name")),
+        ("Organization", form.get("org")),
+        ("Type", form.get("org_type")),
+        ("Size", form.get("size")),
+        ("Email", form.get("email")),
+        ("Phone", form.get("phone")),
+        ("Interested in", form.get("interest")),
+        ("Source", form.get("source") or "site"),
+        ("Marketing opt in", "Yes" if opt_in else "No"),
+    ]
+    cells = "".join(
+        '<tr><td style="padding:7px 0;color:#6b7280;font-size:13px;width:150px;'
+        'vertical-align:top;">{label}</td>'
+        '<td style="padding:7px 0;color:#0B1026;font-size:15px;font-weight:500;">'
+        "{value}</td></tr>".format(label=_esc(label), value=_esc(value))
+        for label, value in rows
+    )
+    message = _esc(form.get("message")).replace("\n", "<br>")
+    reply_to = _esc(form.get("email"))
+    return (
+        '<!DOCTYPE html><html><body style="margin:0;padding:24px;'
+        'background:#f7f9ff;font-family:Helvetica,Arial,sans-serif;">'
+        '<div style="max-width:600px;margin:0 auto;background:#fff;'
+        'border-radius:14px;padding:30px;">'
+        '<p style="font-size:12px;letter-spacing:0.14em;text-transform:uppercase;'
+        'color:#2563FF;margin:0 0 14px;font-weight:600;">New lead</p>'
+        '<h1 style="font-size:22px;margin:0 0 22px;color:#0B1026;">'
+        + _esc(form.get("org"))
+        + "</h1>"
+        '<table style="width:100%;border-collapse:collapse;">'
+        + cells
+        + "</table>"
+        '<p style="font-size:13px;color:#6b7280;margin:24px 0 6px;'
+        'border-top:1px solid #e5e7eb;padding-top:18px;">Message</p>'
+        '<p style="font-size:15px;line-height:1.6;color:#0B1026;margin:0 0 24px;">'
+        + (message or "none")
+        + "</p>"
+        '<a href="mailto:'
+        + reply_to
+        + '" style="display:inline-block;background:#2563FF;color:#fff;'
+        'text-decoration:none;padding:13px 24px;border-radius:999px;'
+        'font-weight:600;font-size:15px;">Reply to this lead</a>'
+        "</div></body></html>"
+    )
+
+
+def deliver_lead(form, opt_in):
+    """Synchronous. Upsert the lead and send the team alert.
+
+    Returns True only if OneSignal accepted the alert and targeted at least one
+    recipient. False tells the caller to try the SMTP fallback.
+    """
+    if not is_configured():
+        log.warning("OneSignal not configured, cannot deliver lead alert.")
+        return False
+
+    email = (form.get("email") or "").strip().lower()
+    try:
+        # Order matters: the lead record must exist before the confirmation
+        # targets it by alias.
+        _upsert_user(email, _lead_tags(form, opt_in))
+        _ensure_internal_recipients()
+        return _send_email({
+            "app_id": APP_ID,
+            "name": "Lead alert",
+            "include_aliases": {"external_id": NOTIFY_TO},
+            "target_channel": "email",
+            "email_subject": "New lead: %s (%s)" % (form.get("org", ""), form.get("name", "")),
+            "email_preheader": "Reply within one business day.",
+            "email_body": _alert_html(form, opt_in),
+            "email_from_name": FROM_NAME,
+            "email_reply_to_address": email,
+            "include_unsubscribed": True,
+            "disable_email_click_tracking": True,
+        })
+    except Exception as exc:  # noqa: BLE001
+        log.error("OneSignal lead alert failed: %s", exc)
+        return False
 
 
 def _confirmation_html(first_name):
@@ -144,15 +258,12 @@ def _confirmation_html(first_name):
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
-def _run(form, opt_in):
+def _run(form):
     email = (form.get("email") or "").strip().lower()
     if not email:
         return
     first_name = (form.get("name") or "").strip().split(" ")[0]
     try:
-        # The lead record must exist before the confirmation targets it by alias.
-        if not _upsert_user(email, _lead_tags(form, opt_in)):
-            return
         payload = {
             "app_id": APP_ID,
             "name": "Book a call confirmation",
@@ -175,10 +286,9 @@ def _run(form, opt_in):
         log.error("OneSignal sync error for %s: %s", email, exc)
 
 
-def sync_lead(form, opt_in):
-    """Fire and forget. Returns immediately; work happens on a daemon thread so
-    a slow OneSignal response can never delay the form redirect."""
+def send_confirmation_only(form):
+    """Fire and forget. Returns immediately; the confirmation is sent on a
+    daemon thread so a slow OneSignal response cannot delay the redirect."""
     if not is_configured():
-        log.info("OneSignal not configured, skipping sync.")
         return
-    threading.Thread(target=_run, args=(form, opt_in), daemon=True).start()
+    threading.Thread(target=_run, args=(form,), daemon=True).start()

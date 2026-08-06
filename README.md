@@ -10,7 +10,7 @@ Marketing site for Between Sundays. Flask + Jinja2, no database, deployed on Ren
 | Server | gunicorn (2 workers, 4 threads) |
 | Templates | Jinja2 |
 | Assets | Static CSS and vanilla JS, no build step |
-| Email | Resend over SMTP (lead alerts), OneSignal (optional, lead-facing) |
+| Email | OneSignal (primary), Resend over SMTP (automatic fallback) |
 | Host | Render, auto-deploy from Git |
 
 ## Pages
@@ -90,7 +90,8 @@ With `SMTP_PASS` blank, the form validates and redirects normally and writes the
 | `SMTP_USER` | `resend` |
 | `SMTP_PASS` | Resend API key (`re_...`). A send-only key is the correct scope |
 | `MAIL_FROM` | Sender on a domain verified in Resend |
-| `MAIL_TO` | Comma separated. Where lead alerts are delivered |
+| `MAIL_TO` | Comma separated. Fallback recipients. Keep in sync with `LEAD_NOTIFY_TO` |
+| `LEAD_NOTIFY_TO` | Comma separated. Where OneSignal delivers lead alerts |
 | `CONTACT_EMAIL` | The address displayed publicly in the footer and on the Book a Call page |
 | `CLIENT_PORTAL_URL` | Stripe customer portal login link. Leave unset to hide the Client Login button. |
 | `DEMO_URL` | Product demo link. Defaults to demo.betweensundaysconsulting.com. Blank it to hide every View demo button. |
@@ -102,18 +103,30 @@ With `SMTP_PASS` blank, the form validates and redirects normally and writes the
 
 ## Email architecture
 
-Two providers, split by what happens if they fail.
+OneSignal is the primary path. Resend is an automatic fallback, not a parallel system.
 
-| Message | Provider | Timing | On failure |
+| Step | Provider | Timing | On failure |
 | --- | --- | --- | --- |
-| Lead alert to the team | Resend (SMTP) | Synchronous | Visitor sees the fallback error with the direct address, and the lead payload is logged under `LEAD NOT DELIVERED` |
-| Contact record and confirmation to the lead | OneSignal | Background daemon thread | Logged and ignored; the lead is already captured |
+| 1. Lead alert to the team | OneSignal | Synchronous | Falls through to step 2 |
+| 2. Lead alert retry | Resend (SMTP) | Synchronous | Visitor sees the fallback error, lead logged under `LEAD NOT DELIVERED` |
+| 3. Confirmation to the lead | OneSignal | Background daemon thread | Logged and ignored; the lead is already captured |
 
-The lead alert is the one message that must arrive, so it runs on the proven transactional path and its result decides what the visitor sees. OneSignal is additive: it records the contact with tags for segmentation and sends the confirmation. **With `ONESIGNAL_APP_ID` or `ONESIGNAL_API_KEY` unset, the module is a silent no-op and the site runs Resend-only.** Nothing about OneSignal can delay or break a submission.
+The visitor only ever sees an error if **both** providers fail. If `SMTP_PASS` is unset the fallback does not exist and the site is OneSignal-only, which is a supported configuration but leaves lead capture on a single provider.
 
-**Consent.** The form carries an unchecked opt-in box. Everyone who submits is recorded in OneSignal so you have the contact, but only those who ticked the box are tagged `marketing_opt_in=true`. Build every marketing segment on that tag. The confirmation sets `include_unsubscribed: true` because it is a direct reply to an action the person just took; sequences built in the dashboard must not set that flag.
+The alert sets `include_unsubscribed: true` and `disable_email_click_tracking: true`, so an accidental unsubscribe by a team member cannot stop lead alerts and internal ops mail carries no tracked links.
 
-**Tags written per lead:** `lead_source`, `lead_date`, `marketing_opt_in`, `status`, `name`, `organization`, `org_type`, `org_size`, `interest`, `phone`.
+**Internal recipients.** Every address in `LEAD_NOTIFY_TO` is upserted as a OneSignal user tagged `internal_team=true` and targeted by alias. Exclude that tag from every marketing segment so the team never receives its own campaigns.
+
+**Consent.** The form carries an unchecked opt-in box. Everyone who submits is recorded so you have the contact, but only those who ticked the box are tagged `marketing_opt_in=true`. Build every marketing segment on that tag. Sequences built in the dashboard must not set `include_unsubscribed`.
+
+**Tags written per lead:** `lead_source`, `lead_date`, `marketing_opt_in`, `status`, `internal_team`, `name`, `organization`, `org_type`, `org_size`, `interest`, `phone`.
+
+## OneSignal setup
+
+1. In the app, add the **Email** channel and verify the sending domain in DNS (SPF, DKIM, CNAME). Nothing sends until this is green.
+2. Settings, Keys & IDs: copy the App ID and the App API key.
+3. Set `ONESIGNAL_APP_ID`, `ONESIGNAL_API_KEY`, and `LEAD_NOTIFY_TO`.
+4. Submit one test lead and confirm both the alert and the confirmation arrive.
 
 ## Resend setup
 
