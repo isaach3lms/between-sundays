@@ -90,6 +90,7 @@ With `SMTP_PASS` blank, the form validates and redirects normally and writes the
 | `MAIL_FROM_NAME` | Display name on the From line. Defaults to Between Sundays |
 | `MAIL_TO` | Comma separated. Where lead alerts are delivered |
 | `SEND_CONFIRMATION` | Set to `false` to stop sending the confirmation email to the lead |
+| `DIAG_TOKEN` | Optional. Enables `/healthz/email?token=...` for config checks. Leave unset to disable the endpoint |
 | `CONTACT_EMAIL` | The address displayed publicly in the footer and on the Book a Call page |
 | `CLIENT_PORTAL_URL` | Stripe customer portal login link. Leave unset to hide the Client Login button. |
 | `DEMO_URL` | Product demo link. Defaults to demo.betweensundaysconsulting.com. Blank it to hide every View demo button. |
@@ -108,6 +109,16 @@ The HTTP API is used rather than SMTP because 443 is never blocked by a host or 
 Both carry a plain-text part and an HTML part, so they render correctly in any client and are less likely to be filtered than HTML alone.
 
 **Reply-To on the alert is set to the lead's address.** Hitting reply in your inbox writes to the prospect, not back to the website address. That is the whole workflow: the alert arrives, you reply, the conversation is started.
+
+**Missing configuration fails loudly.** If `RESEND_API_KEY` is unset the send raises rather than skipping, so the visitor is told to email directly instead of seeing a thank-you page for a lead that went nowhere. The skip-and-log behaviour only applies when Flask is in debug mode on a developer machine.
+
+**Diagnosing a silent failure.** Every boot writes one line to the log:
+
+```
+Startup config | resend_key=SET | mail_from=... | mail_to=... | confirmation=on
+```
+
+If it says `resend_key=MISSING`, the environment variable is not reaching the app. You can also check `/healthz/email?token=<DIAG_TOKEN>`, which reports the same state as JSON without sending anything and without exposing the key. The endpoint returns 404 unless `DIAG_TOKEN` is set and matches.
 
 **Recovery.** If Resend is down, the visitor is told to email `CONTACT_EMAIL` directly and the complete submission is written to the application log. Search the logs for `LEAD NOT DELIVERED` to recover anything lost during an outage.
 

@@ -28,3 +28,5 @@ services:
         value: https://demo.betweensundaysconsulting.com
       - key: SEND_CONFIRMATION
         value: true
+      - key: DIAG_TOKEN
+        sync: false

@@ -84,6 +84,21 @@ DISCIPLESHIP_IS = [
 ]
 
 
+def _log_startup_config():
+    """One line in the deploy log that answers 'will email work?' without
+    needing to submit a form to find out."""
+    app.logger.warning(
+        "Startup config | resend_key=%s | mail_from=%s | mail_to=%s | confirmation=%s",
+        "SET" if RESEND_API_KEY else "MISSING",
+        MAIL_FROM or "MISSING",
+        ", ".join(MAIL_TO) or "MISSING",
+        "on" if SEND_CONFIRMATION else "off",
+    )
+
+
+_log_startup_config()
+
+
 @app.context_processor
 def inject_site():
     return {"site": SITE}
@@ -186,6 +201,22 @@ def healthz():
     return "ok", 200
 
 
+@app.route("/healthz/email")
+def healthz_email():
+    """Config check. Reports whether email is wired without sending anything
+    and without exposing the key. Guarded by DIAG_TOKEN."""
+    token = os.environ.get("DIAG_TOKEN", "")
+    if not token or request.args.get("token") != token:
+        return "not found", 404
+    return {
+        "resend_key": "set" if RESEND_API_KEY else "missing",
+        "key_prefix": (RESEND_API_KEY[:8] + "...") if RESEND_API_KEY else None,
+        "mail_from": MAIL_FROM,
+        "mail_to": MAIL_TO,
+        "send_confirmation": SEND_CONFIRMATION,
+    }, 200
+
+
 @app.route("/robots.txt")
 def robots():
     base = request.url_root.rstrip("/")
@@ -236,9 +267,16 @@ def _esc(value):
 def _resend_send(to, subject, text, html, reply_to=None):
     """Deliver one message through the Resend HTTP API. Raises on failure."""
     if not RESEND_API_KEY:
-        # Local development: log instead of sending.
-        app.logger.info("Resend not configured. Would send to %s: %s\n%s", to, subject, text)
-        return
+        # Silently skipping is only acceptable on a developer machine. In
+        # production it produces the worst possible failure: the visitor sees
+        # the thank-you page and the lead is never sent anywhere.
+        if app.debug:
+            app.logger.info("Resend not configured. Would send to %s: %s\n%s", to, subject, text)
+            return
+        raise RuntimeError(
+            "RESEND_API_KEY is not set. Email cannot be sent. "
+            "Set it in the host environment and redeploy."
+        )
 
     payload = {
         "from": "%s <%s>" % (MAIL_FROM_NAME, MAIL_FROM),
