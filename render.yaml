@@ -12,13 +12,9 @@ services:
         value: 3.12.4
       - key: SECRET_KEY
         generateValue: true
-      - key: SMTP_HOST
-        value: smtp.resend.com
-      - key: SMTP_PORT
-        value: 587
-      - key: SMTP_USER
-        value: resend
-      - key: SMTP_PASS
+      - key: MAIL_FROM_NAME
+        value: Between Sundays
+      - key: RESEND_API_KEY
         sync: false
       - key: MAIL_FROM
         sync: false
@@ -30,15 +26,5 @@ services:
         sync: false
       - key: DEMO_URL
         value: https://demo.betweensundaysconsulting.com
-      - key: ONESIGNAL_APP_ID
-        sync: false
-      - key: ONESIGNAL_API_KEY
-        sync: false
-      - key: ONESIGNAL_TEMPLATE_ID
-        sync: false
-      - key: ONESIGNAL_FROM_NAME
-        value: Between Sundays
-      - key: ONESIGNAL_REPLY_TO
-        sync: false
-      - key: LEAD_NOTIFY_TO
-        sync: false
+      - key: SEND_CONFIRMATION
+        value: true

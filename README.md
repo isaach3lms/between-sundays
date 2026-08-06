@@ -10,7 +10,7 @@ Marketing site for Between Sundays. Flask + Jinja2, no database, deployed on Ren
 | Server | gunicorn (2 workers, 4 threads) |
 | Templates | Jinja2 |
 | Assets | Static CSS and vanilla JS, no build step |
-| Email | OneSignal (primary), Resend over SMTP (automatic fallback) |
+| Email | Resend HTTP API |
 | Host | Render, auto-deploy from Git |
 
 ## Pages
@@ -85,56 +85,41 @@ With `SMTP_PASS` blank, the form validates and redirects normally and writes the
 | Key | Purpose |
 | --- | --- |
 | `SECRET_KEY` | Flask session key. Generate a long random string. |
-| `SMTP_HOST` | `smtp.resend.com` |
-| `SMTP_PORT` | `587` |
-| `SMTP_USER` | `resend` |
-| `SMTP_PASS` | Resend API key (`re_...`). A send-only key is the correct scope |
+| `RESEND_API_KEY` | Resend API key (`re_...`). A **sending-only** key is the correct scope. `SMTP_PASS` is accepted as a legacy alias |
 | `MAIL_FROM` | Sender on a domain verified in Resend |
-| `MAIL_TO` | Comma separated. Fallback recipients. Keep in sync with `LEAD_NOTIFY_TO` |
-| `LEAD_NOTIFY_TO` | Comma separated. Where OneSignal delivers lead alerts |
+| `MAIL_FROM_NAME` | Display name on the From line. Defaults to Between Sundays |
+| `MAIL_TO` | Comma separated. Where lead alerts are delivered |
+| `SEND_CONFIRMATION` | Set to `false` to stop sending the confirmation email to the lead |
 | `CONTACT_EMAIL` | The address displayed publicly in the footer and on the Book a Call page |
 | `CLIENT_PORTAL_URL` | Stripe customer portal login link. Leave unset to hide the Client Login button. |
 | `DEMO_URL` | Product demo link. Defaults to demo.betweensundaysconsulting.com. Blank it to hide every View demo button. |
-| `ONESIGNAL_APP_ID` | OneSignal App ID, UUID v4. Leave unset to disable the integration. |
-| `ONESIGNAL_API_KEY` | OneSignal App API key. Sent as `Authorization: Key <value>` |
-| `ONESIGNAL_TEMPLATE_ID` | Optional. Template UUID for the confirmation email. Falls back to inline HTML. |
-| `ONESIGNAL_FROM_NAME` | Sender name override. Defaults to Between Sundays. |
-| `ONESIGNAL_REPLY_TO` | Reply-to on the confirmation email. |
 
-## Email architecture
+## Email
 
-OneSignal is the primary path. Resend is an automatic fallback, not a parallel system.
+Resend, via its HTTP API on port 443. One provider, no fallback layer.
 
-| Step | Provider | Timing | On failure |
+The HTTP API is used rather than SMTP because 443 is never blocked by a host or firewall, errors come back as readable JSON instead of SMTP status codes, and there is no TLS handshake or login round trip to fail. Note that Resend's edge rejects default urllib user agents, so the client sends an explicit `User-Agent`. Do not remove it.
+
+| Message | Recipient | Timing | On failure |
 | --- | --- | --- | --- |
-| 1. Lead alert to the team | OneSignal | Synchronous | Falls through to step 2 |
-| 2. Lead alert retry | Resend (SMTP) | Synchronous | Visitor sees the fallback error, lead logged under `LEAD NOT DELIVERED` |
-| 3. Confirmation to the lead | OneSignal | Background daemon thread | Logged and ignored; the lead is already captured |
+| Lead alert with all form fields | `MAIL_TO` | Synchronous | Visitor sees the fallback address, and the full lead payload is logged under `LEAD NOT DELIVERED` |
+| Confirmation | The person who submitted | Synchronous, best effort | Logged and ignored; the lead is already captured |
 
-The visitor only ever sees an error if **both** providers fail. If `SMTP_PASS` is unset the fallback does not exist and the site is OneSignal-only, which is a supported configuration but leaves lead capture on a single provider.
+Both carry a plain-text part and an HTML part, so they render correctly in any client and are less likely to be filtered than HTML alone.
 
-The alert sets `include_unsubscribed: true` and `disable_email_click_tracking: true`, so an accidental unsubscribe by a team member cannot stop lead alerts and internal ops mail carries no tracked links.
+**Reply-To on the alert is set to the lead's address.** Hitting reply in your inbox writes to the prospect, not back to the website address. That is the whole workflow: the alert arrives, you reply, the conversation is started.
 
-**Internal recipients.** Every address in `LEAD_NOTIFY_TO` is upserted as a OneSignal user tagged `internal_team=true` and targeted by alias. Exclude that tag from every marketing segment so the team never receives its own campaigns.
+**Recovery.** If Resend is down, the visitor is told to email `CONTACT_EMAIL` directly and the complete submission is written to the application log. Search the logs for `LEAD NOT DELIVERED` to recover anything lost during an outage.
 
-**Consent.** The form carries an unchecked opt-in box. Everyone who submits is recorded so you have the contact, but only those who ticked the box are tagged `marketing_opt_in=true`. Build every marketing segment on that tag. Sequences built in the dashboard must not set `include_unsubscribed`.
-
-**Tags written per lead:** `lead_source`, `lead_date`, `marketing_opt_in`, `status`, `internal_team`, `name`, `organization`, `org_type`, `org_size`, `interest`, `phone`.
-
-## OneSignal setup
-
-1. In the app, add the **Email** channel and verify the sending domain in DNS (SPF, DKIM, CNAME). Nothing sends until this is green.
-2. Settings, Keys & IDs: copy the App ID and the App API key.
-3. Set `ONESIGNAL_APP_ID`, `ONESIGNAL_API_KEY`, and `LEAD_NOTIFY_TO`.
-4. Submit one test lead and confirm both the alert and the confirmation arrive.
+The opt-in checkbox on the form still records consent and appears in the alert as `Marketing opt in: Yes/No`. Nothing consumes it automatically right now, so treat it as the record you will need when you add a list tool.
 
 ## Resend setup
 
 1. Add `betweensundaysconsulting.com` in Resend under Domains.
 2. Add the DNS records Resend provides: SPF, DKIM, and the return-path CNAME.
 3. Wait for verification. `MAIL_FROM` must be on the verified domain or every send is rejected.
-4. Create a **sending-only** API key rather than a full-access one. The site only ever sends.
-5. Submit one test lead and confirm delivery before pointing traffic at the form.
+4. Create a **sending-only** API key rather than a full-access one. The site only ever sends, and a full-access key on a public web server can create and delete domains and other keys.
+5. Submit one test lead and confirm both emails arrive before pointing traffic at the form.
 
 ## Form behavior
 
