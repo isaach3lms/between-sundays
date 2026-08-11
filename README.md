@@ -90,6 +90,10 @@ With `SMTP_PASS` blank, the form validates and redirects normally and writes the
 | `MAIL_FROM_NAME` | Display name on the From line. Defaults to Between Sundays |
 | `MAIL_TO` | Comma separated. Where lead alerts are delivered |
 | `SEND_CONFIRMATION` | Set to `false` to stop sending the confirmation email to the lead |
+| `RECAPTCHA_SITE_KEY` | Public key rendered into the page. Safe to expose |
+| `RECAPTCHA_SECRET_KEY` | Private key, server side only. **Leave blank and nothing is enforced** |
+| `RECAPTCHA_VERSION` | `v2` (checkbox) or `v3` (invisible, scored). Defaults to `v2`. Must match the key type |
+| `RECAPTCHA_MIN_SCORE` | v3 only. Reject below this score. Defaults to `0.5` |
 | `DIAG_TOKEN` | Optional. Enables `/healthz/email?token=...` for config checks. Leave unset to disable the endpoint |
 | `CONTACT_EMAIL` | The address displayed publicly in the footer and on the Book a Call page |
 | `CLIENT_PORTAL_URL` | Stripe customer portal login link. Leave unset to hide the Client Login button. |
@@ -131,6 +135,28 @@ The opt-in checkbox on the form still records consent and appears in the alert a
 3. Wait for verification. `MAIL_FROM` must be on the verified domain or every send is rejected.
 4. Create a **sending-only** API key rather than a full-access one. The site only ever sends, and a full-access key on a public web server can create and delete domains and other keys.
 5. Submit one test lead and confirm both emails arrive before pointing traffic at the form.
+
+## reCAPTCHA
+
+Three layers guard the form: the honeypot field, server-side validation, and reCAPTCHA.
+
+**Both keys are required to enforce anything.** The site key alone renders the widget and mints tokens but verifies nothing, because verification happens server side using the secret. The startup log states which state you are in:
+
+```
+recaptcha=v3 ENFORCED
+recaptcha=site key only, NOT ENFORCED
+recaptcha=off
+```
+
+**It fails open, by design.** A submission is allowed through when the secret is unset, when Google is unreachable, or when the keys are misconfigured. Each case is logged, the misconfiguration case at ERROR. The reasoning: a spam email costs you thirty seconds, a blocked real lead costs you a client. Never change this to fail closed on a lead form.
+
+**Order of checks.** Honeypot, then field validation, then reCAPTCHA. Validation runs first so that a visitor fixing a typo does not burn their single-use token before the form is even valid.
+
+**The version must match the key type.** A v2 key requested from the v3 script endpoint returns 400, so nothing loads, no token is minted, and the fail-open path lets everything through while the config looks correct. Check the key type in the reCAPTCHA admin console rather than assuming.
+
+**v3 versus v2.** v3 is invisible and scores each submission from 0.0 to 1.0; the score appears in the log on every submission, so watch real traffic for a week before tightening `RECAPTCHA_MIN_SCORE` above 0.5. v2 renders a checkbox and needs no JavaScript from us. Switching between them is one environment variable; the templates and server handle both.
+
+**If the script fails to load,** the JS submits the form anyway after a five second timeout rather than trapping the visitor. The server's fail-open behaviour catches it from there.
 
 ## Form behavior
 

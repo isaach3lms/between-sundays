@@ -75,6 +75,19 @@
   </div>
 </footer>
 
+{% if site.recaptcha_site_key %}
+<script>
+  window.BS_RECAPTCHA = {
+    siteKey: "{{ site.recaptcha_site_key }}",
+    version: "{{ site.recaptcha_version }}"
+  };
+</script>
+{% if site.recaptcha_version == 'v3' %}
+<script src="https://www.google.com/recaptcha/api.js?render={{ site.recaptcha_site_key }}" async defer></script>
+{% else %}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endif %}
+{% endif %}
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

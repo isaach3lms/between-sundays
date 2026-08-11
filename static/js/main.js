@@ -97,3 +97,66 @@
     }
   });
 })();
+
+
+// ------------------------------------------------------- reCAPTCHA (v3 only)
+// v2 renders its own checkbox widget and needs no JS from us. v3 is invisible,
+// so the token has to be minted at submit time and written into the form.
+// Tokens are single use and expire after two minutes, which is why this runs
+// on submit rather than on page load.
+(function () {
+  var cfg = window.BS_RECAPTCHA;
+  if (!cfg || !cfg.siteKey || cfg.version !== 'v3') return;
+
+  var forms = document.querySelectorAll('form[data-recaptcha="v3"]');
+  if (!forms.length) return;
+
+  Array.prototype.forEach.call(forms, function (form) {
+    var submitting = false;
+
+    form.addEventListener('submit', function (e) {
+      if (submitting) return; // second pass, let it through
+      e.preventDefault();
+
+      var button = form.querySelector('button[type="submit"]');
+      var original = button ? button.textContent : null;
+
+      function send() {
+        submitting = true;
+        if (button) {
+          button.disabled = false;
+          button.textContent = original;
+        }
+        form.submit();
+      }
+
+      // If grecaptcha never loads, submit anyway. The server fails open, so a
+      // blocked script must not cost a real lead.
+      if (typeof grecaptcha === 'undefined' || !grecaptcha.execute) {
+        send();
+        return;
+      }
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Sending...';
+      }
+
+      var timeout = window.setTimeout(send, 5000);
+
+      grecaptcha.ready(function () {
+        grecaptcha.execute(cfg.siteKey, { action: 'book_a_call' })
+          .then(function (token) {
+            window.clearTimeout(timeout);
+            var field = form.querySelector('input[name="g-recaptcha-response"]');
+            if (field) field.value = token;
+            send();
+          })
+          .catch(function () {
+            window.clearTimeout(timeout);
+            send();
+          });
+      });
+    });
+  });
+})();

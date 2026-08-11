@@ -2,7 +2,8 @@
 {% set errors = errors|default({}) %}
 {% set form = form|default({}) %}
 {% if errors.form %}<p class="alert">{{ errors.form }}</p>{% endif %}
-<form class="form" method="post" action="{{ url_for('book_a_call') }}" novalidate>
+<form class="form" method="post" action="{{ url_for('book_a_call') }}" novalidate
+      {% if site.recaptcha_site_key %}data-recaptcha="{{ site.recaptcha_version }}"{% endif %}>
   <input type="hidden" name="source" value="{{ source|default('site') }}">
 
   <div class="field">
@@ -87,6 +88,16 @@
     <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
   </div>
 
+  {% if site.recaptcha_site_key %}
+    {% if site.recaptcha_version == 'v2' %}
+  <div class="field">
+    <div class="g-recaptcha" data-sitekey="{{ site.recaptcha_site_key }}"></div>
+  </div>
+    {% else %}
+  <input type="hidden" name="g-recaptcha-response" value="">
+    {% endif %}
+  {% endif %}
+
   <button class="btn btn--primary btn--wide" type="submit">Book a call</button>
-  <p class="form__note">We reply within one business day. Your information is never shared or sold.</p>
+  <p class="form__note">We reply within one business day. Your information is never shared or sold.{% if site.recaptcha_site_key and site.recaptcha_version == 'v3' %} Protected by reCAPTCHA. Google's <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a> apply.{% endif %}</p>
 </form>

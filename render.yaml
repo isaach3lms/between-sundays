@@ -30,3 +30,11 @@ services:
         value: true
       - key: DIAG_TOKEN
         sync: false
+      - key: RECAPTCHA_SITE_KEY
+        sync: false
+      - key: RECAPTCHA_SECRET_KEY
+        sync: false
+      - key: RECAPTCHA_VERSION
+        value: v2
+      - key: RECAPTCHA_MIN_SCORE
+        value: "0.5"

@@ -17,6 +17,7 @@ import json
 import os
 import re
 import urllib.error
+import urllib.parse
 import urllib.request
 
 from flask import Flask, redirect, render_template, request, url_for
@@ -35,6 +36,20 @@ RESEND_ENDPOINT = "https://api.resend.com/emails"
 # Must be on a domain verified in Resend.
 MAIL_FROM = os.environ.get("MAIL_FROM", "website@betweensundaysconsulting.com")
 MAIL_FROM_NAME = os.environ.get("MAIL_FROM_NAME", "Between Sundays")
+
+# Google reCAPTCHA. The site key is public and is rendered into the page. The
+# secret key is private and is only ever sent server side to Google.
+# With RECAPTCHA_SECRET_KEY unset, verification is skipped entirely, so adding
+# the site key alone can never block a real submission.
+RECAPTCHA_SITE_KEY = os.environ.get("RECAPTCHA_SITE_KEY", "")
+RECAPTCHA_SECRET_KEY = os.environ.get("RECAPTCHA_SECRET_KEY", "")
+# "v2" (checkbox) or "v3" (invisible, scored). Must match the key type in the
+# reCAPTCHA admin console: a v2 key returns 400 from the v3 script endpoint,
+# which loads nothing and silently protects nothing.
+RECAPTCHA_VERSION = os.environ.get("RECAPTCHA_VERSION", "v2").lower()
+# v3 only. Google returns 0.0 (likely bot) to 1.0 (likely human).
+RECAPTCHA_MIN_SCORE = float(os.environ.get("RECAPTCHA_MIN_SCORE", "0.5"))
+RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
 # Set to "false" to stop sending the confirmation email to the lead.
 SEND_CONFIRMATION = os.environ.get("SEND_CONFIRMATION", "true").lower() != "false"
@@ -66,6 +81,8 @@ SITE = {
     "email": CONTACT_EMAIL,
     "client_portal": CLIENT_PORTAL_URL,
     "demo_url": DEMO_URL,
+    "recaptcha_site_key": RECAPTCHA_SITE_KEY,
+    "recaptcha_version": RECAPTCHA_VERSION,
     "linkedin": "https://www.linkedin.com/company/between-sundays-consulting/",
 }
 
@@ -88,11 +105,14 @@ def _log_startup_config():
     """One line in the deploy log that answers 'will email work?' without
     needing to submit a form to find out."""
     app.logger.warning(
-        "Startup config | resend_key=%s | mail_from=%s | mail_to=%s | confirmation=%s",
+        "Startup config | resend_key=%s | mail_from=%s | mail_to=%s "
+        "| confirmation=%s | recaptcha=%s",
         "SET" if RESEND_API_KEY else "MISSING",
         MAIL_FROM or "MISSING",
         ", ".join(MAIL_TO) or "MISSING",
         "on" if SEND_CONFIRMATION else "off",
+        ("%s ENFORCED" % RECAPTCHA_VERSION) if RECAPTCHA_SECRET_KEY
+        else ("site key only, NOT ENFORCED" if RECAPTCHA_SITE_KEY else "off"),
     )
 
 
@@ -140,6 +160,20 @@ def book_a_call():
 
     errors = validate(form)
     if errors:
+        return render_template("book_a_call.html", page="book", errors=errors, form=form), 400
+
+    # Run after field validation so someone fixing a typo does not burn their
+    # single-use token before they have a valid form.
+    ok, reason = verify_recaptcha(
+        request.form.get("g-recaptcha-response"),
+        request.headers.get("X-Forwarded-For", request.remote_addr),
+    )
+    if not ok:
+        app.logger.warning("reCAPTCHA rejected submission (%s) from %s", reason, form.get("email"))
+        errors["form"] = (
+            "We could not verify that submission. Please try again, or email %s directly."
+            % CONTACT_EMAIL
+        )
         return render_template("book_a_call.html", page="book", errors=errors, form=form), 400
 
     opt_in = bool(request.form.get("opt_in"))
@@ -210,6 +244,10 @@ def healthz_email():
         return "not found", 404
     return {
         "resend_key": "set" if RESEND_API_KEY else "missing",
+        "recaptcha_site_key": "set" if RECAPTCHA_SITE_KEY else "missing",
+        "recaptcha_secret_key": "set" if RECAPTCHA_SECRET_KEY else "missing",
+        "recaptcha_version": RECAPTCHA_VERSION,
+        "recaptcha_enforced": bool(RECAPTCHA_SECRET_KEY),
         "key_prefix": (RESEND_API_KEY[:8] + "...") if RESEND_API_KEY else None,
         "mail_from": MAIL_FROM,
         "mail_to": MAIL_TO,
@@ -250,6 +288,57 @@ def validate(form):
     if len(form.get("org", "")) < 2:
         errors["org"] = "Enter your church or organization name."
     return errors
+
+
+def verify_recaptcha(token, remote_ip=None):
+    """Ask Google whether this submission looks human.
+
+    Returns (ok, reason). Deliberately fails OPEN: if the secret is unset, or
+    Google is unreachable, or the keys are misconfigured, the submission is
+    allowed through and the event is logged. A blocked real lead costs far more
+    than a spam email that gets through.
+    """
+    if not RECAPTCHA_SECRET_KEY:
+        return True, "not configured"
+
+    if not token:
+        return False, "no token submitted"
+
+    data = urllib.parse.urlencode({
+        "secret": RECAPTCHA_SECRET_KEY,
+        "response": token,
+        "remoteip": remote_ip or "",
+    }).encode("utf-8")
+
+    try:
+        req = urllib.request.Request(
+            RECAPTCHA_VERIFY_URL,
+            data=data,
+            method="POST",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            result = json.loads(resp.read().decode("utf-8") or "{}")
+    except Exception as exc:  # noqa: BLE001
+        app.logger.warning("reCAPTCHA unreachable, allowing submission: %s", exc)
+        return True, "verification unavailable"
+
+    if not result.get("success"):
+        codes = result.get("error-codes") or []
+        # A misconfigured key is our fault, not the visitor's. Log loudly and
+        # let the submission through rather than punishing them for it.
+        if any(c in ("invalid-input-secret", "bad-request") for c in codes):
+            app.logger.error("reCAPTCHA MISCONFIGURED (%s), allowing submission", codes)
+            return True, "misconfigured"
+        return False, "failed: %s" % (codes or "unknown")
+
+    if RECAPTCHA_VERSION == "v3":
+        score = result.get("score")
+        app.logger.info("reCAPTCHA v3 score: %s", score)
+        if score is not None and score < RECAPTCHA_MIN_SCORE:
+            return False, "score %.2f below threshold %.2f" % (score, RECAPTCHA_MIN_SCORE)
+
+    return True, "ok"
 
 
 def _esc(value):
