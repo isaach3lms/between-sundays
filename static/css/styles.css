@@ -745,6 +745,36 @@ img {
   accent-color: var(--blue);
 }
 
+/* Google renders the v2 checkbox at a fixed 304px. Inside the form card on a
+   360px phone there is only ~272px of room, so it overflows without this. */
+.field--recaptcha {
+  min-height: 78px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.field--recaptcha .g-recaptcha {
+  transform-origin: 0 0;
+}
+
+@media (max-width: 400px) {
+  .field--recaptcha .g-recaptcha {
+    transform: scale(0.87);
+  }
+  .field--recaptcha {
+    min-height: 68px;
+  }
+}
+
+@media (max-width: 360px) {
+  .field--recaptcha .g-recaptcha {
+    transform: scale(0.78);
+  }
+  .field--recaptcha {
+    min-height: 62px;
+  }
+}
+
 .field--hp {
   position: absolute;
   left: -9999px;

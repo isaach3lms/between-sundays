@@ -12,7 +12,7 @@
       <div class="hero__actions">
         <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
         {% if site.demo_url %}<a class="btn btn--accent" href="{{ site.demo_url }}" target="_blank" rel="noopener">View demo</a>{% endif %}
-        <a class="btn btn--light" href="#pricing">See pricing</a>
+        <a class="btn btn--light" href="#how-it-runs">How it works</a>
       </div>
     </div>
   </div>
@@ -78,7 +78,7 @@
   </div>
 </section>
 
-<section class="section section--paper">
+<section class="section section--paper" id="how-it-runs">
   <div class="shell">
     <div class="section__head">
       <p class="eyebrow">How it runs</p>
@@ -104,139 +104,15 @@
   </div>
 </section>
 
-<section class="section" id="pricing">
-  <div class="shell">
-    <div class="section__head">
-      <div class="step"><span class="step__num">Step one</span></div>
-      <h2>Choose your build.</h2>
-      <p class="lede">A one-time investment covering design, copywriting, launch, and training.</p>
-    </div>
-    <div class="grid grid--2">
-      <article class="plan">
-        <h3 class="plan__name">Launch Package</h3>
-        <p class="plan__price">$1,500 <small>one time</small></p>
-        <p class="plan__for">For church plants and growing churches establishing a professional digital presence.</p>
-        <ul class="plan__list">
-          <li>Up to 5 custom website pages</li>
-          <li>Professional copywriting</li>
-          <li>Search engine optimization</li>
-          <li>Logo design or brand refresh</li>
-          <li>Google Business Profile and Maps setup</li>
-          <li>Mobile-responsive website</li>
-          <li>Website training for your team</li>
-          <li>Access to the dashboard</li>
-        </ul>
-        <a class="btn btn--ghost btn--wide" href="{{ url_for('book_a_call') }}">Start with Launch</a>
-      </article>
-
-      <article class="plan plan--feature">
-        <h3 class="plan__name">Growth Package</h3>
-        <p class="plan__price">$2,000 <small>one time</small></p>
-        <p class="plan__for">For churches expanding digital outreach and using the nonprofit technology available to them.</p>
-        <ul class="plan__list">
-          <li class="is-inherited">Everything in the Launch Package</li>
-          <li>Up to 7 custom website pages</li>
-          <li>Google for Nonprofits setup</li>
-          <li>Google Ad Grants enrollment assistance</li>
-          <li>First Google Ads campaign built and launched</li>
-          <li>Enhanced visitor engagement tools</li>
-          <li>Access to the dashboard</li>
-        </ul>
-        <a class="btn btn--primary btn--wide" href="{{ url_for('book_a_call') }}">Start with Growth</a>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="section section--paper">
-  <div class="shell">
-    <div class="section__head">
-      <div class="step"><span class="step__num">Step two</span></div>
-      <h2>Choose your ministry partnership.</h2>
-      <p class="lede">Every build is paired with an ongoing plan. This is what keeps the site secure, the app current, the data clean, and someone on the other end of the email.</p>
-    </div>
-    <div class="grid grid--3">
-      <article class="plan">
-        <h3 class="plan__name">Foundation</h3>
-        <p class="plan__price">$50 <small>/ month</small></p>
-        <p class="plan__for">Reliable hosting and ongoing support.</p>
-        <ul class="plan__list">
-          <li>Secure hosting</li>
-          <li>Website backups</li>
-          <li>Security monitoring</li>
-          <li>Software updates</li>
-          <li>Priority email support</li>
-          <li>Dashboard access</li>
-        </ul>
-        <a class="btn btn--ghost btn--wide" href="{{ url_for('book_a_call') }}">Choose Foundation</a>
-      </article>
-
-      <article class="plan plan--feature">
-        <h3 class="plan__name">Connect</h3>
-        <p class="plan__price">$100 <small>/ month</small></p>
-        <p class="plan__for">Everything in Foundation, plus your custom mobile app.</p>
-        <ul class="plan__list">
-          <li class="is-inherited">Everything in Foundation</li>
-          <li>Custom mobile app</li>
-          <li>Website and app synchronization</li>
-          <li>Push notifications</li>
-          <li>Sermon library</li>
-          <li>Events and announcements</li>
-          <li>Giving integrations</li>
-        </ul>
-        <a class="btn btn--primary btn--wide" href="{{ url_for('book_a_call') }}">Choose Connect</a>
-      </article>
-
-      <article class="plan">
-        <h3 class="plan__name">Grow</h3>
-        <p class="plan__price">$250 <small>/ month</small></p>
-        <p class="plan__for">For churches committed to long-term growth and discipleship.</p>
-        <ul class="plan__list">
-          <li class="is-inherited">Everything in Connect</li>
-          <li>Google Ad Grants monthly maintenance and compliance</li>
-          <li>Custom discipleship resources</li>
-          <li>Pathway management</li>
-          <li>Member growth tracking</li>
-          <li>Monthly design support: 5 graphic templates and 1 sermon series template</li>
-          <li>Communication consulting</li>
-          <li>Strategic ministry support</li>
-          <li>Priority support</li>
-        </ul>
-        <a class="btn btn--ghost btn--wide" href="{{ url_for('book_a_call') }}">Choose Grow</a>
-      </article>
-    </div>
-  </div>
-</section>
-
 <section class="section section--ink">
   <div class="shell center">
-    <p class="eyebrow eyebrow--light">What every partnership includes</p>
-    <p class="equation"><strong>One-time investment</strong> plus <strong>monthly ministry partnership</strong> equals a system that knows every person and moves them to their next step.</p>
-        <div class="cta-pair">
+    <p class="eyebrow eyebrow--light">The whole point</p>
+    <p class="equation"><strong>Know every person</strong> plus <strong>lead them to their next step</strong> equals a church that stops guessing where its people stand.</p>
+    <div class="cta-pair">
       <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
       {% if site.demo_url %}<a class="btn btn--accent" href="{{ site.demo_url }}" target="_blank" rel="noopener">View demo</a>{% endif %}
     </div>
   </div>
 </section>
 
-<section class="section">
-  <div class="shell narrow">
-    <div class="section__head">
-      <p class="eyebrow">Common questions</p>
-      <h2>Before you ask.</h2>
-    </div>
-    <div class="stack-sm">
-      <h3>Is the monthly plan required?</h3>
-      <p>Yes. The build is half of it. Hosting, security, updates, and dashboard access live in the partnership, and churches that skip ongoing support end up with the same stale site they started with.</p>
-      <h3>Do we have to replace our church management system?</h3>
-      <p>No. We integrate with what you already pay for. Replacing it is a decision we would only recommend after the assessment, and only if the math favors it.</p>
-      <h3>What if we already have a website?</h3>
-      <p>We audit it first. If the foundation is sound we work with it. If it costs more to maintain than to replace, we say so.</p>
-      <h3>How long does a build take?</h3>
-      <p>Most launches run four to six weeks from kickoff, depending on how quickly we get content, photos, and feedback from your team.</p>
-      <h3>Can we change plans later?</h3>
-      <p>Move up or down at any time. Most churches start on Foundation and move to Connect once the app is the next real need.</p>
-    </div>
-  </div>
-</section>
 {% endblock %}

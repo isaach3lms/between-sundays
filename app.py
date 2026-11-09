@@ -217,7 +217,7 @@ def legacy_churches():
 
 @app.route("/pricing")
 def legacy_pricing():
-    return redirect(url_for("for_churches") + "#pricing", code=301)
+    return redirect(url_for("for_churches"), code=301)
 
 
 @app.route("/contact")

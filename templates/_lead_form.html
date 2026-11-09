@@ -90,7 +90,7 @@
 
   {% if site.recaptcha_site_key %}
     {% if site.recaptcha_version == 'v2' %}
-  <div class="field">
+  <div class="field field--recaptcha">
     <div class="g-recaptcha" data-sitekey="{{ site.recaptcha_site_key }}"></div>
   </div>
     {% else %}
