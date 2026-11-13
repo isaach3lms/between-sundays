@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}About Isaac | Between Sundays Consulting{% endblock %}
+{% block description %}Isaac Helms has spent a decade serving the local and global church through teaching, discipleship systems, and creative arts, including work with Life.Church, Seacoast Church, YouVersion, and Rock City Church.{% endblock %}
+
+{% block content %}
+<section class="hero hero--short">
+  <div class="shell">
+    <div class="hero__inner">
+      <p class="eyebrow eyebrow--light">About</p>
+      <h1>A decade in the church, <span class="mark">not in a software company.</span></h1>
+      <p class="hero__lede">Between Sundays exists to give small churches the discipleship systems that large ones pay staff to run.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="shell founder founder--reverse">
+    <div class="founder__photo">
+      <img src="{{ url_for('static', filename='img/isaac.jpg') }}"
+           alt="Isaac Helms, founder of Between Sundays Consulting"
+           width="960" height="1280">
+    </div>
+    <div class="founder__body">
+      <div class="stack-sm">
+        <p class="said">Hey there, I am Isaac, founder of Between Sundays.</p>
+        <p>For the last decade I have served the local and global church through teaching, building discipleship systems and strategies, and creative arts. I have had the privilege of working with churches and ministries like Life.Church, Seacoast Church, YouVersion, and Rock City Church, and I have helped plant several smaller churches along the way.</p>
+        <p>My heart is to serve small local churches that do not have the budget to hire full-time staff. When we work together, you are not just buying software. You are also adding a pastor to your team.</p>
+        <p>Together we will build a discipleship system that shows where every person is on their journey and what their next step is, without paying for multiple systems that never show the full picture of your church.</p>
+      </div>
+      <p class="founder__sign">Isaac Helms<span>Founder, Between Sundays Consulting</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="shell">
+    <div class="section__head">
+      <p class="eyebrow">Where I have served</p>
+      <h2>Churches and ministries I have worked with.</h2>
+      <p class="lede">Large enough to have seen what works at scale. Small enough to know what a church with no staff is actually dealing with on a Tuesday.</p>
+    </div>
+    <div class="grid grid--2">
+      <article class="card card--flat"><h3>Life.Church</h3><p>The largest church in the country and the ministry behind the YouVersion Bible app.</p></article>
+      <article class="card card--flat"><h3>YouVersion</h3><p>The Bible app installed on hundreds of millions of phones worldwide.</p></article>
+      <article class="card card--flat"><h3>Seacoast Church</h3><p>One of the earliest multisite churches in the United States.</p></article>
+      <article class="card card--flat"><h3>Rock City Church</h3><p>A multisite church known for creative arts and discipleship pathways.</p></article>
+    </div>
+    <p class="lede mt-32">Plus several smaller church plants, which is where most of what I know actually came from.</p>
+  </div>
+</section>
+
+<section class="section section--ink">
+  <div class="shell narrow center">
+    <p class="eyebrow eyebrow--light">Why this exists</p>
+    <p class="equation">Large churches pay staff to answer <strong>who is being discipled.</strong> Small churches deserve the same answer without the salary line.</p>
+    <div class="cta-pair">
+      <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call with Isaac</a>
+      {% if site.demo_url %}<a class="btn btn--light" href="{{ site.demo_url }}" target="_blank" rel="noopener">View demo</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

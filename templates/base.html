@@ -28,6 +28,7 @@
       <a href="{{ url_for('home') }}" {% if page == 'home' %}aria-current="page"{% endif %}>Home</a>
       <a href="{{ url_for('for_churches') }}" {% if page == 'churches' %}aria-current="page"{% endif %}>For Churches</a>
       <a href="{{ url_for('for_nonprofits') }}" {% if page == 'nonprofits' %}aria-current="page"{% endif %}>For Nonprofits</a>
+      <a href="{{ url_for('about') }}" {% if page == 'about' %}aria-current="page"{% endif %}>About</a>
       <span class="nav__actions">
         {% if site.client_portal %}
         <a class="btn btn--outline" href="{{ site.client_portal }}" target="_blank" rel="noopener">Client login</a>
@@ -56,6 +57,7 @@
           <li><a href="{{ url_for('home') }}">Home</a></li>
           <li><a href="{{ url_for('for_churches') }}">For Churches</a></li>
           <li><a href="{{ url_for('for_nonprofits') }}">For Nonprofits</a></li>
+          <li><a href="{{ url_for('about') }}">About Isaac</a></li>
           <li><a href="{{ url_for('book_a_call') }}">Book a call</a></li>
           {% if site.client_portal %}<li><a href="{{ site.client_portal }}" target="_blank" rel="noopener">Client login</a></li>{% endif %}
         </ul>
@@ -69,7 +71,7 @@
       </div>
     </div>
     <div class="footer__bottom">
-      <span>&copy; 2026 {{ site.name }}. All rights reserved.</span>
+      <span>&copy; 2026 Between Sundays Consulting. All rights reserved.</span>
       <span>Know every person. Lead them to their next step.</span>
     </div>
   </div>

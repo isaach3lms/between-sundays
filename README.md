@@ -52,6 +52,21 @@ The Client Login button in the header points at the Stripe customer portal. Get 
 
 If the variable is unset or empty, the button does not render anywhere on the site. That is deliberate: the live site can never ship a dead login link, and turning the button on is an environment change rather than a deploy. Clients enter their billing email at the portal and receive a one-time link, so there is no password for you to manage.
 
+## The marker device
+
+`.mark` draws a hand-drawn blue circle behind a phrase; `.mark--under` draws an underline instead. Both are SVG data URIs in `styles.css` using `vector-effect="non-scaling-stroke"`, so the stroke keeps an even weight however far the box is stretched.
+
+**Terminal punctuation goes inside the span.** `.mark` is `white-space: nowrap`, so a period left outside it wraps to its own line:
+
+```html
+<!-- wrong -->
+<span class="mark">Monday through Saturday</span>.
+<!-- right -->
+<span class="mark">Monday through Saturday.</span>
+```
+
+Use one mark per page at most. It is the loudest element on the site.
+
 ## Logo files
 
 The site logo is the stacked wordmark, two lines, cropped to the glyphs with two pixels of padding. Source artwork is 384 x 167, displayed at 40px tall in the header and 56px in the footer, which leaves more than 2x pixel density on retina screens.
