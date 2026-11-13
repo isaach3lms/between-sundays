@@ -5,20 +5,7 @@
 <section class="hero">
   <div class="shell">
     <div class="hero__inner">
-      <p class="eyebrow eyebrow--light">Discipleship operating system for churches</p>
-      <h1 class="rotator-head">
-        <span class="rotator-head__static">Discipleship is</span>
-        <span class="rotator" id="rotator" aria-hidden="true">
-          <span class="rotator__item is-active">{{ phrases[0][0] }}</span>
-        </span>
-        <span class="visually-hidden">
-          {% for phrase, field in phrases %}{{ phrase }} {% endfor %}
-        </span>
-      </h1>
-      <p class="rotator-tag" aria-hidden="true">
-        <span class="rotator-tag__label">Tracked in your system as</span>
-        <span class="rotator-tag__value" id="rotator-field">{{ phrases[0][1] }}</span>
-      </p>
+      <h1>A discipleship system for <em>growing churches</em></h1>
 
       <p class="hero__lede">{{ site.tagline }}</p>
 
@@ -194,6 +181,4 @@
     </div>
   </div>
 </section>
-
-<script>window.BS_PHRASES = {{ phrases|tojson }};</script>
 {% endblock %}
