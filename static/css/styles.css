@@ -1204,6 +1204,64 @@ img {
 }
 
 
+
+/* ------------------------------------------------------------------ process */
+/* Audit, Develop, Communicate is a real sequence, so the numbers carry
+   information rather than decorate. Set as a reading list, not a card grid. */
+.process {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: none;
+  border-top: 1px solid var(--ink-12);
+}
+
+.process__step {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: clamp(20px, 4vw, 56px);
+  align-items: start;
+  padding: clamp(28px, 4vw, 44px) 0;
+  border-bottom: 1px solid var(--ink-12);
+}
+
+.process__num {
+  font-family: var(--serif);
+  font-size: clamp(2.6rem, 2rem + 2.4vw, 4rem);
+  line-height: 0.9;
+  color: var(--blue);
+  letter-spacing: -0.03em;
+}
+
+.process__body {
+  max-width: 62ch;
+}
+
+.process__body h3 {
+  font-size: var(--step-2);
+  margin-bottom: 12px;
+}
+
+.process__body p {
+  margin: 0;
+  color: var(--ink-80);
+}
+
+.section--ink .process,
+.section--ink .process__step {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+@media (max-width: 720px) {
+  .process__step {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .process__num {
+    font-size: 2.2rem;
+  }
+}
+
 /* ----------------------------------------------------------------- founder */
 /* The one place on the site where a person, not a system, is the subject. */
 .founder {
