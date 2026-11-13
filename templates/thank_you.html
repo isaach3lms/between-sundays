@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Message sent | Between Sundays{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="shell">
+    <div class="hero__inner">
+      <p class="eyebrow eyebrow--light">Message sent</p>
+      <h1>Thank you. We have it.</h1>
+      <p class="hero__lede">We reply within one business day with a few times to talk. If it is urgent, email <a href="mailto:{{ site.email }}" style="color:#8fb0ff">{{ site.email }}</a> directly.</p>
+      <div class="hero__actions">
+        <a class="btn btn--light" href="{{ url_for('home') }}">Back to home</a>
+        <a class="btn btn--light" href="{{ url_for('for_churches') }}">See what we do</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

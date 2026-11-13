@@ -1,0 +1,103 @@
+{# Shared lead form. Set compact=true for the inline version on the home page. #}
+{% set errors = errors|default({}) %}
+{% set form = form|default({}) %}
+{% if errors.form %}<p class="alert">{{ errors.form }}</p>{% endif %}
+<form class="form" method="post" action="{{ url_for('book_a_call') }}" novalidate
+      {% if site.recaptcha_site_key %}data-recaptcha="{{ site.recaptcha_version }}"{% endif %}>
+  <input type="hidden" name="source" value="{{ source|default('site') }}">
+
+  <div class="field">
+    <label for="name">Your name</label>
+    <input type="text" id="name" name="name" value="{{ form.name or '' }}" autocomplete="name" required>
+    {% if errors.name %}<p class="field__error">{{ errors.name }}</p>{% endif %}
+  </div>
+
+  <div class="field">
+    <label for="org">Church or organization</label>
+    <input type="text" id="org" name="org" value="{{ form.org or '' }}" autocomplete="organization" required>
+    {% if errors.org %}<p class="field__error">{{ errors.org }}</p>{% endif %}
+  </div>
+
+  <div class="field">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" value="{{ form.email or '' }}" autocomplete="email" required>
+    {% if errors.email %}<p class="field__error">{{ errors.email }}</p>{% endif %}
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="org_type">We are a</label>
+      <select id="org_type" name="org_type">
+        <option value="">Select one</option>
+        <option {% if form.org_type == 'Church' %}selected{% endif %}>Church</option>
+        <option {% if form.org_type == 'Church plant' %}selected{% endif %}>Church plant</option>
+        <option {% if form.org_type == 'Multi-site church' %}selected{% endif %}>Multi-site church</option>
+        <option {% if form.org_type == 'Nonprofit' %}selected{% endif %}>Nonprofit</option>
+        <option {% if form.org_type == 'Ministry' %}selected{% endif %}>Ministry</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="size">Weekly attendance or size</label>
+      <select id="size" name="size">
+        <option value="">Select one</option>
+        <option {% if form.size == 'Under 100' %}selected{% endif %}>Under 100</option>
+        <option {% if form.size == '100 to 250' %}selected{% endif %}>100 to 250</option>
+        <option {% if form.size == '250 to 500' %}selected{% endif %}>250 to 500</option>
+        <option {% if form.size == '500 to 1,000' %}selected{% endif %}>500 to 1,000</option>
+        <option {% if form.size == 'Over 1,000' %}selected{% endif %}>Over 1,000</option>
+        <option {% if form.size == 'Not launched yet' %}selected{% endif %}>Not launched yet</option>
+      </select>
+    </div>
+  </div>
+
+  {% if not compact %}
+  <div class="field">
+    <label for="phone">Phone (optional)</label>
+    <input type="tel" id="phone" name="phone" value="{{ form.phone or '' }}" autocomplete="tel">
+  </div>
+
+  <div class="field">
+    <label for="interest">What do you need most?</label>
+    <select id="interest" name="interest">
+      <option value="">Select one</option>
+      <option {% if form.interest == 'Website and app' %}selected{% endif %}>Website and app</option>
+      <option {% if form.interest == 'Communication automation' %}selected{% endif %}>Communication automation</option>
+      <option {% if form.interest == 'Discipleship or next-step pathways' %}selected{% endif %}>Discipleship or next-step pathways</option>
+      <option {% if form.interest == 'Service planning' %}selected{% endif %}>Service planning</option>
+      <option {% if form.interest == 'Financial audits and projections' %}selected{% endif %}>Financial audits and projections</option>
+      <option {% if form.interest == 'Google for Nonprofits and Ad Grants' %}selected{% endif %}>Google for Nonprofits and Ad Grants</option>
+      <option {% if form.interest == 'Not sure yet' %}selected{% endif %}>Not sure yet</option>
+    </select>
+  </div>
+  {% endif %}
+
+  <div class="field">
+    <label for="message">What is taking the most time right now? (optional)</label>
+    <textarea id="message" name="message" {% if compact %}rows="3"{% endif %}>{{ form.message or '' }}</textarea>
+  </div>
+
+  <div class="field field--check">
+    <label for="opt_in">
+      <input type="checkbox" id="opt_in" name="opt_in" value="yes" {% if form.opt_in %}checked{% endif %}>
+      <span>Send me occasional resources for church and nonprofit leaders. No more than monthly, unsubscribe anytime.</span>
+    </label>
+  </div>
+
+  <div class="field field--hp" aria-hidden="true">
+    <label for="website">Leave this field empty</label>
+    <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+  </div>
+
+  {% if site.recaptcha_site_key %}
+    {% if site.recaptcha_version == 'v2' %}
+  <div class="field field--recaptcha">
+    <div class="g-recaptcha" data-sitekey="{{ site.recaptcha_site_key }}"></div>
+  </div>
+    {% else %}
+  <input type="hidden" name="g-recaptcha-response" value="">
+    {% endif %}
+  {% endif %}
+
+  <button class="btn btn--primary btn--wide" type="submit">Book a call</button>
+  <p class="form__note">We reply within one business day. Your information is never shared or sold.{% if site.recaptcha_site_key and site.recaptcha_version == 'v3' %} Protected by reCAPTCHA. Google's <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a> apply.{% endif %}</p>
+</form>
