@@ -1,59 +1,44 @@
 {% extends "base.html" %}
 {% block title %}For Churches | Between Sundays{% endblock %}
-{% block description %}Service planning, websites and apps, communication automation, discipleship pathways, financial projections, and Google for Nonprofits setup for churches.{% endblock %}
+{% block description %}We audit how your church welcomes, connects, and cares for people, develop your Discipleship Operating System, and send the weekly communication that helps every person take their next step.{% endblock %}
 
 {% block content %}
 <section class="hero hero--short">
   <div class="shell">
     <div class="hero__inner">
       <p class="eyebrow eyebrow--light">For Churches</p>
-      <h1>The operating system your church runs <span class="mark">Monday through Saturday.</span></h1>
-      <p class="hero__lede">Six functions most churches hire six different people to cover. We deliver them as one partnership, with one point of contact, for less than the cost of one part-time hire.</p>
+      <h1>The operating system your church runs on Monday through Saturday.</h1>
+      <p class="hero__lede">The work most churches hire several different people to cover. We deliver it as one partnership, with one point of contact, for less than the cost of one part-time hire.</p>
       <div class="hero__actions">
         <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>
         {% if site.demo_url %}<a class="btn btn--accent" href="{{ site.demo_url }}" target="_blank" rel="noopener">View demo</a>{% endif %}
-        <a class="btn btn--light" href="#how-it-runs">How it works</a>
+        <a class="btn btn--light" href="#how-it-runs">What we do</a>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section">
+<section class="section" id="how-it-runs">
   <div class="shell">
     <div class="section__head">
-      <p class="eyebrow">What we build</p>
-      <h2>Six functions, one system.</h2>
+      <p class="eyebrow">The work</p>
+      <h2>What We Do</h2>
     </div>
-    <div class="grid grid--2">
+    <div class="grid grid--3">
       <article class="card">
-        <span class="card__tag">01 Planning</span>
-        <h3>Service planning and implementation</h3>
-        <p>We map how your Sunday gets built, then remove the steps that do not need a human. Volunteer scheduling, run-of-show, rehearsal timelines, and a documented workflow your team can run without you in the room.</p>
+        <span class="card__tag">Step one</span>
+        <h3>Audit</h3>
+        <p>We start by looking at how your church welcomes, connects, and cares for people today. We review your visitor, volunteer, giving, group, and marketing systems to find where people are getting stuck or slipping through the cracks.</p>
       </article>
       <article class="card">
-        <span class="card__tag">02 Build</span>
-        <h3>Website and app development</h3>
-        <p>A mobile-first church website and a matching app. Sermon library, events, giving, push notifications, and a resource hub that gives members a reason to open it on a Tuesday.</p>
+        <span class="card__tag">Step two</span>
+        <h3>Develop</h3>
+        <p>We build your Discipleship Operating System: one all-in-one system that shows where every person is on their discipleship journey and what their next step is.</p>
       </article>
       <article class="card">
-        <span class="card__tag">03 Automate</span>
-        <h3>Communication automation</h3>
-        <p>Sequences for first-time guests, new members, group signups, and giving follow-up. Written once, sent on time, every time, without adding a task to anyone's list.</p>
-      </article>
-      <article class="card">
-        <span class="card__tag">04 Discipleship</span>
-        <h3>Discipleship pathways</h3>
-        <p>A defined path from first visit to disciple-maker, the resources to teach each stage, and the tracking to see who is moving. Growth becomes a number your leaders can act on.</p>
-      </article>
-      <article class="card">
-        <span class="card__tag">05 Finance</span>
-        <h3>Financial audits and projections</h3>
-        <p>A review of where the money goes, a budget your board can defend, and a forecast showing what next year's hire or building project actually requires.</p>
-      </article>
-      <article class="card">
-        <span class="card__tag">06 Grants</span>
-        <h3>Google for Nonprofits setup</h3>
-        <p>We run the application, configure Workspace, enable the nonprofit YouTube tier, and enroll you in Google Ad Grants. Approved organizations receive up to $10,000 per month in search advertising.</p>
+        <span class="card__tag">Step three</span>
+        <h3>Communicate</h3>
+        <p>Every week, your church sends messages designed to help your people take their next step, so no one is left to figure it out alone.</p>
       </article>
     </div>
   </div>
@@ -65,6 +50,7 @@
       <p class="eyebrow eyebrow--light">The dashboard</p>
       <h2>One view of the whole congregation.</h2>
       <p>Included with every partnership. Manage your website and app, monitor pathways, organize ministry resources, and track the people your current systems quietly lose.</p>
+      <p>Hosting, updates, and monitoring stay with us. We remain the operational team you do not have to hire.</p>
     </div>
     <ul class="questions">
       <li>Who is a first-time guest?</li>
@@ -78,41 +64,9 @@
   </div>
 </section>
 
-<section class="section section--paper" id="how-it-runs">
-  <div class="shell">
-    <div class="section__head">
-      <p class="eyebrow">The work</p>
-      <h2>What I do.</h2>
-    </div>
-    <ol class="process">
-      <li class="process__step">
-        <span class="process__num">01</span>
-        <div class="process__body">
-          <h3>Audit</h3>
-          <p>We start by looking at how your church welcomes, connects, and cares for people today. We review your visitor, volunteer, giving, group, and marketing systems to find where people are getting stuck or slipping through the cracks.</p>
-        </div>
-      </li>
-      <li class="process__step">
-        <span class="process__num">02</span>
-        <div class="process__body">
-          <h3>Develop</h3>
-          <p>We build your Discipleship Operating System: one all-in-one system that shows where every person is on their discipleship journey and what their next step is.</p>
-        </div>
-      </li>
-      <li class="process__step">
-        <span class="process__num">03</span>
-        <div class="process__body">
-          <h3>Communicate</h3>
-          <p>Every week, your church sends messages designed to help your people take their next step, so no one is left to figure it out alone.</p>
-        </div>
-      </li>
-    </ol>
-  </div>
-</section>
-
-<section class="section section--ink">
+<section class="section section--mist">
   <div class="shell center">
-    <p class="eyebrow eyebrow--light">The whole point</p>
+    <p class="eyebrow">The whole point</p>
     <p class="equation"><strong>Know every person</strong> plus <strong>lead them to their next step</strong> equals a church that stops guessing where its people stand.</p>
     <div class="cta-pair">
       <a class="btn btn--primary" href="{{ url_for('book_a_call') }}">Book a call</a>

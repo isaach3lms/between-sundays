@@ -209,12 +209,8 @@ def thank_you():
 
 
 # Legacy paths from the first build.
-@app.route("/about")
-def about():
-    return render_template("about.html", page="about")
-
-
 @app.route("/services")
+@app.route("/about")
 def legacy_churches():
     return redirect(url_for("for_churches"), code=301)
 
@@ -269,7 +265,7 @@ def robots():
 @app.route("/sitemap.xml")
 def sitemap():
     base = request.url_root.rstrip("/")
-    paths = ["/", "/for-churches", "/for-nonprofits", "/about", "/book-a-call"]
+    paths = ["/", "/for-churches", "/for-nonprofits", "/book-a-call"]
     urls = "".join("<url><loc>%s%s</loc></url>" % (base, p) for p in paths)
     body = (
         '<?xml version="1.0" encoding="UTF-8"?>'
